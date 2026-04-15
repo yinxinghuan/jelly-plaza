@@ -1,0 +1,219 @@
+/* ── Character Container ── */
+.jp-char {
+  position: absolute;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: none;
+  transition: filter 0.3s ease;
+  transform: translate(-50%, -50%) scale(var(--char-scale, 0.35));
+  animation: jp-float 5s ease-in-out infinite;
+
+  &:hover {
+    filter: brightness(1.15) drop-shadow(0 0 20px rgba(140, 120, 255, 0.3));
+  }
+
+  &--active {
+    z-index: 10;
+  }
+
+  &--poke {
+    animation: jp-poke 0.6s ease forwards, jp-float 5s ease-in-out infinite;
+  }
+
+  &:nth-child(2) {
+    animation-delay: -1.7s;
+    animation-duration: 5.3s;
+  }
+  &:nth-child(3) {
+    animation-delay: -3.2s;
+    animation-duration: 4.7s;
+  }
+}
+
+/* ── Layered rendering ── */
+.jp-char__stage {
+  position: relative;
+}
+
+.jp-layer {
+  position: absolute;
+  image-rendering: auto;
+  pointer-events: none;
+}
+
+.jp-layer--back-hair {
+  transform-origin: top center;
+  animation: jp-hair-back 4.5s ease-in-out infinite;
+}
+
+.jp-layer--front-hair {
+  transform-origin: top center;
+  animation: jp-hair-front 3.8s ease-in-out infinite;
+}
+
+.jp-layer--eyelash {
+  transform-origin: bottom center;
+}
+
+.jp-layer--headwear {
+  transform-origin: bottom center;
+  animation: jp-hw-bob 4.5s ease-in-out infinite;
+}
+
+.jp-layer--handwear {
+  transform-origin: top center;
+  animation: jp-arms-sway 4s ease-in-out infinite;
+}
+
+/* ── Single image rendering ── */
+.jp-char__single {
+  position: relative;
+}
+
+.jp-char__single-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  /* Subtle breathing animation */
+  transform-origin: bottom center;
+  animation: jp-breathe 3.5s ease-in-out infinite;
+}
+
+/* Each single-image char gets slightly different breathing */
+.jp-char:nth-child(2) .jp-char__single-img {
+  animation-duration: 3.8s;
+  animation-delay: -1s;
+}
+.jp-char:nth-child(3) .jp-char__single-img {
+  animation-duration: 3.2s;
+  animation-delay: -2.3s;
+}
+
+/* ── Chat Bubble ── */
+/* Wrapper counter-scales the bubble so it stays readable */
+.jp-char__bubble-wrap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) scale(calc(1 / var(--char-scale, 0.35)));
+  transform-origin: bottom center;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.jp-char__bubble {
+  background: #fff;
+  color: #1a1a2e;
+  padding: 10px 20px;
+  border-radius: 22px;
+  font-size: 15px;
+  white-space: nowrap;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateY(10px) scale(0.8);
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+
+  &--show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.jp-char__bubble-tail {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* ── Name + Status ── */
+/* Counter-scale to keep text at consistent readable size */
+.jp-char__info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: -10px;
+  position: relative;
+  z-index: 5;
+  transform: scale(calc(1 / var(--char-scale, 0.35)));
+  transform-origin: top center;
+}
+
+.jp-char__name {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+}
+
+.jp-char__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  padding: 5px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.jp-char__status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+}
+
+/* ── Keyframes ── */
+@keyframes jp-float {
+  0%, 100% { transform: translate(-50%, -50%) scale(var(--char-scale, 0.35)); }
+  50%      { transform: translate(-50%, calc(-50% - 8px)) scale(var(--char-scale, 0.35)); }
+}
+
+@keyframes jp-poke {
+  0%   { transform: translate(-50%, -50%) scale(var(--char-scale, 0.35)) rotate(0deg); }
+  15%  { transform: translate(-50%, -50%) scale(calc(var(--char-scale, 0.35) * 1.05)) rotate(-8deg); }
+  30%  { transform: translate(-50%, -50%) scale(var(--char-scale, 0.35)) rotate(6deg); }
+  45%  { transform: translate(-50%, -50%) scale(var(--char-scale, 0.35)) rotate(-3deg); }
+  60%  { transform: translate(-50%, -50%) scale(var(--char-scale, 0.35)) rotate(1deg); }
+  100% { transform: translate(-50%, -50%) scale(var(--char-scale, 0.35)) rotate(0deg); }
+}
+
+@keyframes jp-breathe {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  50%      { transform: scaleY(1.008) scaleX(0.997); }
+}
+
+@keyframes jp-hair-back {
+  0%, 100% { transform: rotate(0deg) translateX(0px); }
+  40%      { transform: rotate(1.2deg) translateX(2px); }
+  70%      { transform: rotate(-0.6deg) translateX(-1px); }
+}
+
+@keyframes jp-hair-front {
+  0%, 100% { transform: rotate(0deg) translateX(0px); }
+  35%      { transform: rotate(-1deg) translateX(-2px); }
+  65%      { transform: rotate(0.5deg) translateX(1px); }
+}
+
+@keyframes jp-hw-bob {
+  0%, 100% { transform: rotate(0deg); }
+  40%      { transform: rotate(0.6deg); }
+  70%      { transform: rotate(-0.3deg); }
+}
+
+@keyframes jp-arms-sway {
+  0%, 100% { transform: rotate(0deg) translateX(0px); }
+  30%      { transform: rotate(1.2deg) translateX(2px); }
+  70%      { transform: rotate(-0.9deg) translateX(-2px); }
+}
