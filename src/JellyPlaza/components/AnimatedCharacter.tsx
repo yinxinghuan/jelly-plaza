@@ -88,7 +88,7 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
                 layer.id === 'eyelash' ? eyelashRef :
                 undefined
               }
-              src={`/layers/${config.id}/${layer.file}`}
+              src={`${import.meta.env.BASE_URL}layers/${config.id}/${layer.file}`}
               className={`jp-layer ${layer.cssClass || ''}`}
               draggable={false}
               style={{

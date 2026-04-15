@@ -73,7 +73,7 @@ export function JellyPlaza() {
       </div>
 
       {/* Watermark */}
-      <img src="/img/aigram.svg" className="jp__watermark" draggable={false} />
+      <img src={`${import.meta.env.BASE_URL}img/aigram.svg`} className="jp__watermark" draggable={false} />
     </div>
   );
 }

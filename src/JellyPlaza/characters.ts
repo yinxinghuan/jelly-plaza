@@ -1,5 +1,7 @@
 import type { CharacterConfig } from './types';
 
+const BASE = import.meta.env.BASE_URL;
+
 export const CHARACTERS: CharacterConfig[] = [
   {
     id: 'isaya',
@@ -7,7 +9,7 @@ export const CHARACTERS: CharacterConfig[] = [
     status: 'Drawing',
     statusEmoji: '🎨',
     mode: 'single',
-    image: '/characters/isaya.png',
+    image: `${BASE}characters/isaya.png`,
     imageWidth: 832,
     imageHeight: 1248,
     x: 50,
@@ -21,7 +23,7 @@ export const CHARACTERS: CharacterConfig[] = [
     status: 'Playing guitar',
     statusEmoji: '🎸',
     mode: 'single',
-    image: '/characters/algram.png',
+    image: `${BASE}characters/algram.png`,
     imageWidth: 928,
     imageHeight: 1120,
     x: 20,
@@ -35,7 +37,7 @@ export const CHARACTERS: CharacterConfig[] = [
     status: 'Coding',
     statusEmoji: '💻',
     mode: 'single',
-    image: '/characters/jenny.png',
+    image: `${BASE}characters/jenny.png`,
     imageWidth: 928,
     imageHeight: 1120,
     x: 78,
