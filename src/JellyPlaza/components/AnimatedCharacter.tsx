@@ -119,7 +119,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
       });
       zones.forEach(el => {
         el.style.transition = 'transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-        el.style.transform = 'translateY(-70px)';
+        el.style.transform = 'translateY(-40px)';
       });
       // Right arm swings wide, left arm gentle
       if (armR) {
