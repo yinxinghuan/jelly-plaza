@@ -119,7 +119,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
       });
       zones.forEach(el => {
         el.style.transition = 'transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-        el.style.transform = 'translateY(-40px)';
+        el.style.transform = 'translateY(-15px)';
       });
       // Right arm swings wide, left arm gentle
       if (armR) {
@@ -133,44 +133,44 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
     }, 80);
 
     // ── Phase 3: Right hand wave, left sways back gently ──
-    // Wave 1: big + slow (enthusiastic start)
+    // Wave 1: big + slow
     later(() => {
       if (armR) {
-        armR.style.transition = 'transform 280ms cubic-bezier(0.22, 1, 0.36, 1)';
+        armR.style.transition = 'transform 450ms cubic-bezier(0.22, 1, 0.36, 1)';
         armR.style.transform = 'rotate(-25deg)';
       }
       if (armL) {
-        armL.style.transition = 'transform 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        armL.style.transition = 'transform 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         armL.style.transform = 'rotate(-20deg)';
       }
     }, 350);
     // Wave 2: swing back
     later(() => {
       if (armR) {
-        armR.style.transition = 'transform 260ms cubic-bezier(0.22, 1, 0.36, 1)';
+        armR.style.transition = 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)';
         armR.style.transform = 'rotate(20deg)';
       }
-    }, 630);
-    // Wave 3: smaller + faster (natural deceleration)
+    }, 800);
+    // Wave 3: smaller (decelerating)
     later(() => {
       if (armR) {
-        armR.style.transition = 'transform 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        armR.style.transition = 'transform 360ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         armR.style.transform = 'rotate(-14deg)';
       }
       if (armL) {
-        armL.style.transition = 'transform 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        armL.style.transition = 'transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         armL.style.transform = 'rotate(-12deg)';
       }
-    }, 890);
+    }, 1220);
     // Wave 4: smallest (winding down)
     later(() => {
       if (armR) {
-        armR.style.transition = 'transform 200ms ease-out';
+        armR.style.transition = 'transform 320ms ease-out';
         armR.style.transform = 'rotate(8deg)';
       }
-    }, 1110);
+    }, 1580);
 
-    // ── Phase 4: Settle (1300ms) ──
+    // ── Phase 4: Settle (1900ms) ──
     later(() => {
       refs.forEach((el, id) => {
         if (id.startsWith('eyewhite') || id.startsWith('irides')) {
@@ -190,7 +190,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         armL.style.transition = 'transform 500ms ease-in-out';
         armL.style.transform = 'rotate(0deg)';
       }
-    }, 1300);
+    }, 1900);
 
     // ── Cleanup: resume breathing ──
     later(() => {
@@ -210,7 +210,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
       char.classList.remove('jp-char--poking');
       // Resume idle blink
       blinkTimer.current = window.setTimeout(blink, 800 + Math.random() * 1500);
-    }, 1900);
+    }, 2500);
   }, [later]);
 
   const handlePoke = useCallback(() => {
