@@ -79,8 +79,9 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
       '.jp-zone--torso, .jp-zone--head, .jp-zone--hair, .jp-zone--arms'
     );
 
-    // Kill breathing (CSS class → animation: none !important)
+    // Kill breathing + pause idle blink (blink scaleY would overwrite zone translateY)
     char.classList.add('jp-char--poking');
+    clearTimeout(blinkTimer.current);
 
     // Show bubble (DOM only, no setState)
     bubbleRef.current?.classList.add('jp-char__bubble--show');
@@ -90,8 +91,12 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
     }, 3000);
 
     // ── Phase 1: Surprise dip (0-120ms) ──
+    // Reset any mid-blink state on eyelashes, hide eyewhite/irides
     refs.forEach((el, id) => {
-      if (id.startsWith('eyewhite') || id.startsWith('irides')) {
+      if (id.startsWith('eyelash')) {
+        el.style.transition = '';
+        el.style.transform = '';
+      } else if (id.startsWith('eyewhite') || id.startsWith('irides')) {
         el.style.transition = 'opacity 40ms';
         el.style.opacity = '0';
       }
@@ -99,7 +104,7 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
     // All zones dip down the SAME amount — no detachment possible
     zones.forEach(el => {
       el.style.transition = 'transform 120ms cubic-bezier(0.25, 0, 0.6, 1)';
-      el.style.transform = 'translateY(15px)';
+      el.style.transform = 'translateY(8px)';
     });
 
     // ── Phase 2: Bounce up (120-400ms) ──
@@ -148,6 +153,8 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
         img.style.transform = '';
       });
       char.classList.remove('jp-char--poking');
+      // Resume idle blink
+      blinkTimer.current = window.setTimeout(blink, 800 + Math.random() * 1500);
     }, 1100);
   }, [later]);
 
