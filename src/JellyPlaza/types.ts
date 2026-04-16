@@ -14,8 +14,10 @@ export interface CharacterConfig {
   name: string;
   status: string;
   statusEmoji: string;
-  mode: 'layered';
+  mode: 'layered' | 'single';
   layers: LayerConfig[];
+  /** Raw character image path (for 'single' mode fallback) */
+  rawImage?: string;
   stageSize: number;
   x: number;
   y: number;
