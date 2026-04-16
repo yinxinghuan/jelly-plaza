@@ -184,25 +184,9 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
       >
         {config.layers.map((layer) => {
           const isArm = layer.tag.startsWith('handwear');
-          const img = (
-            <img
-              key={isArm ? undefined : layer.tag}
-              ref={BLINK_TAGS.has(layer.tag) ? setBlinkRef(layer.tag) : undefined}
-              data-tag={layer.tag}
-              src={layerBase + layer.file}
-              className={`jp-layer ${isArm ? 'jp-arm__img' : ''} ${layer.cssClass || ''}`}
-              draggable={false}
-              style={isArm ? { width: layer.width, height: layer.height } : {
-                left: layer.left,
-                top: layer.top,
-                width: layer.width,
-                height: layer.height,
-              }}
-            />
-          );
           if (isArm) {
-            // Wrapper: positioned + zone breathing (translateY)
-            // Inner img: rotate from shoulder pivot
+            // Wrapper: positioned + zone breathing (translateY follows body)
+            // Inner img: rotate from detected shoulder pivot
             return (
               <div
                 key={layer.tag}
@@ -215,11 +199,38 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
                   height: layer.height,
                 }}
               >
-                {img}
+                <img
+                  data-tag={layer.tag}
+                  src={layerBase + layer.file}
+                  className="jp-arm__img"
+                  draggable={false}
+                  style={{
+                    width: layer.width,
+                    height: layer.height,
+                    transformOrigin: layer.pivot
+                      ? `${layer.pivot.x}% ${layer.pivot.y}%`
+                      : '50% 0%',
+                  }}
+                />
               </div>
             );
           }
-          return img;
+          return (
+            <img
+              key={layer.tag}
+              ref={BLINK_TAGS.has(layer.tag) ? setBlinkRef(layer.tag) : undefined}
+              data-tag={layer.tag}
+              src={layerBase + layer.file}
+              className={`jp-layer ${layer.cssClass || ''}`}
+              draggable={false}
+              style={{
+                left: layer.left,
+                top: layer.top,
+                width: layer.width,
+                height: layer.height,
+              }}
+            />
+          );
         })}
       </div>
 

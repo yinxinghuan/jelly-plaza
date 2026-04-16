@@ -7,6 +7,8 @@ export interface LayerConfig {
   height: number;
   cssClass?: string;
   id?: string;
+  /** Shoulder pivot for arm layers, in % of crop size. Auto-detected from body overlap. */
+  pivot?: { x: number; y: number };
 }
 
 export interface CharacterConfig {

@@ -80,7 +80,7 @@ function fixRenderOrder(layers: { tag: string }[]): void {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildLayers(metadata: any) {
-  const layers = metadata.layers.map((l: { tag: string; xyxy: number[] }) => {
+  const layers = metadata.layers.map((l: { tag: string; xyxy: number[]; pivot?: { x: number; y: number } }) => {
     const [x1, y1, x2, y2] = l.xyxy;
     const safeName = l.tag.replace(/ /g, '_').replace(/\//g, '_');
     return {
@@ -92,6 +92,7 @@ function buildLayers(metadata: any) {
       height: y2 - y1,
       cssClass: layerClass(l.tag),
       id: layerId(l.tag),
+      pivot: l.pivot,
     };
   });
   fixRenderOrder(layers);
