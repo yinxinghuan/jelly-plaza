@@ -90,54 +90,58 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
     }, 3000);
 
     // ── Phase 1: Surprise dip (0-120ms) ──
+    // Eyes: blink reflex. Eyelash combines zone dip + scaleY.
     refs.forEach((el, id) => {
       if (id.startsWith('eyelash')) {
         el.style.transition = 'transform 50ms ease-in';
-        el.style.transform = 'scaleY(0.05)';
+        el.style.transform = 'translateY(25px) scaleY(0.05)';
       } else {
         el.style.transition = 'opacity 40ms';
         el.style.opacity = '0';
       }
     });
+    // Body dip. Arms match torso Y so shoulder stays aligned.
     zones.forEach(el => {
       el.style.transition = 'transform 120ms cubic-bezier(0.25, 0, 0.6, 1)';
       const tag = el.dataset.tag || '';
-      if (['topwear', 'neck', 'neckwear', 'objects'].includes(tag)) {
-        el.style.transform = 'translateY(30px)';
-      } else if (tag.includes('hair')) {
+      if (tag.includes('hair')) {
         el.style.transform = 'translateY(20px) translateX(4px)';
       } else if (tag.startsWith('handwear')) {
-        el.style.transform = 'translateY(25px) rotate(-4deg)';
+        el.style.transform = 'translateY(30px) rotate(-4deg)';
+      } else if (tag.startsWith('eyelash')) {
+        // handled by refs above
       } else {
-        el.style.transform = 'translateY(25px)';
+        el.style.transform = 'translateY(30px)';
       }
     });
 
     // ── Phase 2: Bounce up (120-400ms) ──
     later(() => {
+      // Eyes widen. Eyelash combines zone bounce + scaleY.
       refs.forEach((el, id) => {
         if (id.startsWith('eyelash')) {
-          el.style.transition = 'transform 80ms ease-out';
-          el.style.transform = 'scaleY(1.15)';
+          el.style.transition = 'transform 100ms ease-out';
+          el.style.transform = 'translateY(-40px) scaleY(1.15)';
         } else if (id.startsWith('eyewhite') || id.startsWith('irides')) {
           el.style.transition = 'transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 80ms';
           el.style.opacity = '1';
           el.style.transform = 'scale(1.4)';
         }
       });
+      // Body bounce. Arms match torso Y (-45px).
       zones.forEach(el => {
         el.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
         const tag = el.dataset.tag || '';
-        if (['topwear', 'neck', 'neckwear', 'objects'].includes(tag)) {
-          el.style.transform = 'translateY(-45px) translateX(3px)';
-        } else if (tag.includes('hair')) {
+        if (tag.includes('hair')) {
           el.style.transform = 'translateY(-55px) translateX(-5px)';
         } else if (tag === 'handwear-r') {
-          el.style.transform = 'translateY(-60px) rotate(12deg)';
+          el.style.transform = 'translateY(-45px) rotate(12deg)';
         } else if (tag === 'handwear-l') {
-          el.style.transform = 'translateY(-40px) rotate(-5deg)';
+          el.style.transform = 'translateY(-45px) rotate(-5deg)';
+        } else if (tag.startsWith('eyelash')) {
+          // handled by refs above
         } else {
-          el.style.transform = 'translateY(-40px) translateX(5px)';
+          el.style.transform = 'translateY(-45px) translateX(3px)';
         }
       });
     }, 120);
@@ -147,14 +151,14 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
       const handR = stage.querySelector<HTMLElement>('[data-tag="handwear-r"]');
       if (handR) {
         handR.style.transition = 'transform 150ms ease-in-out';
-        handR.style.transform = 'translateY(-50px) rotate(-8deg)';
+        handR.style.transform = 'translateY(-45px) rotate(-8deg)';
       }
     }, 400);
     later(() => {
       const handR = stage.querySelector<HTMLElement>('[data-tag="handwear-r"]');
       if (handR) {
         handR.style.transition = 'transform 150ms ease-in-out';
-        handR.style.transform = 'translateY(-55px) rotate(10deg)';
+        handR.style.transform = 'translateY(-45px) rotate(10deg)';
       }
     }, 550);
 
@@ -163,7 +167,7 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
       refs.forEach((el, id) => {
         if (id.startsWith('eyelash')) {
           el.style.transition = 'transform 300ms ease-in-out';
-          el.style.transform = 'scaleY(1)';
+          el.style.transform = 'translateY(0) scaleY(1)';
         } else if (id.startsWith('eyewhite') || id.startsWith('irides')) {
           el.style.transition = 'transform 400ms ease-in-out';
           el.style.transform = 'scale(1)';
