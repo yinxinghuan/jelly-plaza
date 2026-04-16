@@ -89,39 +89,21 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
       bubbleRef.current?.classList.remove('jp-char__bubble--show');
     }, 3000);
 
-    // Helper: get inner arm img
-    const armImg = (tag: string) =>
-      stage.querySelector<HTMLElement>(`.jp-arm-wrap[data-tag="${tag}"] .jp-arm__img`);
-
     // ── Phase 1: Surprise dip (0-120ms) ──
-    // Quick blink
     refs.forEach((el, id) => {
       if (id.startsWith('eyewhite') || id.startsWith('irides')) {
         el.style.transition = 'opacity 40ms';
         el.style.opacity = '0';
       }
     });
-    // All upper body dips down together (arms wrapper = same Y as torso)
+    // All zones dip down the SAME amount — no detachment possible
     zones.forEach(el => {
       el.style.transition = 'transform 120ms cubic-bezier(0.25, 0, 0.6, 1)';
-      const tag = el.dataset.tag || '';
-      if (tag.includes('hair')) {
-        el.style.transform = 'translateY(20px) translateX(4px)';
-      } else {
-        el.style.transform = 'translateY(30px)';
-      }
-    });
-    // Arm inner: slight inward swing on dip
-    [armImg('handwear-r'), armImg('handwear-l')].forEach(img => {
-      if (img) {
-        img.style.transition = 'transform 120ms ease';
-        img.style.transform = 'rotate(-3deg)';
-      }
+      el.style.transform = 'translateY(15px)';
     });
 
     // ── Phase 2: Bounce up (120-400ms) ──
     later(() => {
-      // Eyes widen
       refs.forEach((el, id) => {
         if (id.startsWith('eyewhite') || id.startsWith('irides')) {
           el.style.transition = 'transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 80ms';
@@ -129,46 +111,14 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
           el.style.transform = 'scale(1.4)';
         }
       });
-      // Body bounces up (arms wrapper = same Y as torso)
+      // All zones bounce up the SAME amount
       zones.forEach(el => {
         el.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-        const tag = el.dataset.tag || '';
-        if (tag.includes('hair')) {
-          el.style.transform = 'translateY(-55px) translateX(-5px)';
-        } else {
-          el.style.transform = 'translateY(-45px) translateX(3px)';
-        }
+        el.style.transform = 'translateY(-45px)';
       });
-      // Arm inner: swing outward on bounce
-      const rImg = armImg('handwear-r');
-      if (rImg) {
-        rImg.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-        rImg.style.transform = 'rotate(14deg)';
-      }
-      const lImg = armImg('handwear-l');
-      if (lImg) {
-        lImg.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-        lImg.style.transform = 'rotate(-6deg)';
-      }
     }, 120);
 
-    // ── Phase 3: Hand wave (400-700ms) — rotate the inner img ──
-    later(() => {
-      const img = armImg('handwear-r');
-      if (img) {
-        img.style.transition = 'transform 150ms ease-in-out';
-        img.style.transform = 'rotate(-8deg)';
-      }
-    }, 400);
-    later(() => {
-      const img = armImg('handwear-r');
-      if (img) {
-        img.style.transition = 'transform 150ms ease-in-out';
-        img.style.transform = 'rotate(12deg)';
-      }
-    }, 550);
-
-    // ── Phase 4: Settle (700-1200ms) ──
+    // ── Phase 3: Settle (400-900ms) ──
     later(() => {
       refs.forEach((el, id) => {
         if (id.startsWith('eyewhite') || id.startsWith('irides')) {
@@ -176,19 +126,11 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
           el.style.transform = 'scale(1)';
         }
       });
-      // Wrappers back to neutral
       zones.forEach(el => {
         el.style.transition = 'transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         el.style.transform = 'translateY(0)';
       });
-      // Arm imgs back to neutral
-      [armImg('handwear-r'), armImg('handwear-l')].forEach(img => {
-        if (img) {
-          img.style.transition = 'transform 400ms ease-in-out';
-          img.style.transform = 'rotate(0deg)';
-        }
-      });
-    }, 700);
+    }, 500);
 
     // ── Cleanup: resume breathing ──
     later(() => {
@@ -201,13 +143,12 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
         el.style.transition = '';
         el.style.transform = '';
       });
-      // Clear arm inner img inline styles
       stage.querySelectorAll<HTMLElement>('.jp-arm__img').forEach(img => {
         img.style.transition = '';
         img.style.transform = '';
       });
       char.classList.remove('jp-char--poking');
-    }, 1300);
+    }, 1100);
   }, [later]);
 
   const handlePoke = useCallback(() => {
