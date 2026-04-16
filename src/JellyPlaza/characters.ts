@@ -84,7 +84,7 @@ function buildLayers(metadata: any) {
     const [x1, y1, x2, y2] = l.xyxy;
     const safeName = l.tag.replace(/ /g, '_').replace(/\//g, '_');
     return {
-      file: `${safeName}.png`,
+      file: `${safeName}.webp`,
       tag: l.tag,
       left: x1,
       top: y1,
