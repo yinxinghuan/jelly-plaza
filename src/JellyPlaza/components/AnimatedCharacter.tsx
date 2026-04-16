@@ -244,56 +244,82 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         ref={stageRef}
         style={{ width: config.stageSize, height: config.stageSize }}
       >
-        {config.layers.map((layer) => {
-          const isArm = layer.tag.startsWith('handwear');
-          if (isArm) {
-            // Wrapper: positioned + zone breathing (translateY follows body)
-            // Inner img: rotate from detected shoulder pivot
+        {(() => {
+          // Collect held objects per arm
+          const heldByArm: Record<string, typeof config.layers> = {};
+          for (const l of config.layers) {
+            if (l.heldBy) {
+              (heldByArm[l.heldBy] ??= []).push(l);
+            }
+          }
+
+          return config.layers.map((layer) => {
+            // Skip held objects here — they render inside arm wrapper
+            if (layer.heldBy) return null;
+
+            const isArm = layer.tag.startsWith('handwear');
+            if (isArm) {
+              const held = heldByArm[layer.tag] || [];
+              const pivotOrigin = layer.pivot
+                ? `${layer.pivot.x}% ${layer.pivot.y}%`
+                : '50% 0%';
+              return (
+                <div
+                  key={layer.tag}
+                  className={`jp-layer jp-arm-wrap ${layer.cssClass || ''}`}
+                  data-tag={layer.tag}
+                  style={{
+                    left: layer.left,
+                    top: layer.top,
+                    width: layer.width,
+                    height: layer.height,
+                  }}
+                >
+                  {/* Inner rotator: arm + any held objects */}
+                  <div className="jp-arm__img" style={{ transformOrigin: pivotOrigin }}>
+                    <img
+                      data-tag={layer.tag}
+                      src={layerBase + layer.file}
+                      draggable={false}
+                      style={{ width: layer.width, height: layer.height }}
+                    />
+                    {held.map((obj) => (
+                      <img
+                        key={obj.tag}
+                        data-tag={obj.tag}
+                        src={layerBase + obj.file}
+                        className="jp-layer"
+                        draggable={false}
+                        style={{
+                          left: obj.left - layer.left,
+                          top: obj.top - layer.top,
+                          width: obj.width,
+                          height: obj.height,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            }
             return (
-              <div
+              <img
                 key={layer.tag}
-                className={`jp-layer jp-arm-wrap ${layer.cssClass || ''}`}
+                ref={BLINK_TAGS.has(layer.tag) ? setBlinkRef(layer.tag) : undefined}
                 data-tag={layer.tag}
+                src={layerBase + layer.file}
+                className={`jp-layer ${layer.cssClass || ''}`}
+                draggable={false}
                 style={{
                   left: layer.left,
                   top: layer.top,
                   width: layer.width,
                   height: layer.height,
                 }}
-              >
-                <img
-                  data-tag={layer.tag}
-                  src={layerBase + layer.file}
-                  className="jp-arm__img"
-                  draggable={false}
-                  style={{
-                    width: layer.width,
-                    height: layer.height,
-                    transformOrigin: layer.pivot
-                      ? `${layer.pivot.x}% ${layer.pivot.y}%`
-                      : '50% 0%',
-                  }}
-                />
-              </div>
+              />
             );
-          }
-          return (
-            <img
-              key={layer.tag}
-              ref={BLINK_TAGS.has(layer.tag) ? setBlinkRef(layer.tag) : undefined}
-              data-tag={layer.tag}
-              src={layerBase + layer.file}
-              className={`jp-layer ${layer.cssClass || ''}`}
-              draggable={false}
-              style={{
-                left: layer.left,
-                top: layer.top,
-                width: layer.width,
-                height: layer.height,
-              }}
-            />
-          );
-        })}
+          });
+        })()}
       </div>
 
       <div className="jp-char__info">
