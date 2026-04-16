@@ -129,21 +129,6 @@
   70%      { transform: translateY(-10px) rotate(-1deg); }
 }
 
-/* ─────────────────────────────────────────────────────
-   SINGLE-IMAGE FALLBACK (for characters without layers)
-   ───────────────────────────────────────────────────── */
-
-/* RPG breathing for single-image: scaleY from feet + slight sway */
-.jp-layer--single {
-  position: relative;
-  transform-origin: center bottom;
-  animation: jp-single-breathe 2.4s ease-in-out infinite;
-}
-
-@keyframes jp-single-breathe {
-  0%, 100% { transform: scaleY(1) scaleX(1) translateY(0); }
-  50%      { transform: scaleY(1.02) scaleX(0.995) translateY(-2px); }
-}
 
 /* ─────────────────────────────────────────────────────
    POKE REACTION — fully JS-driven via inline styles.

@@ -224,31 +224,22 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
         ref={stageRef}
         style={{ width: config.stageSize, height: config.stageSize }}
       >
-        {config.mode === 'single' && config.rawImage ? (
+        {config.layers.map((layer) => (
           <img
-            src={config.rawImage}
-            className="jp-layer jp-layer--single"
+            key={layer.tag}
+            ref={BLINK_TAGS.has(layer.tag) ? setBlinkRef(layer.tag) : undefined}
+            data-tag={layer.tag}
+            src={layerBase + layer.file}
+            className={`jp-layer ${layer.cssClass || ''}`}
             draggable={false}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{
+              left: layer.left,
+              top: layer.top,
+              width: layer.width,
+              height: layer.height,
+            }}
           />
-        ) : (
-          config.layers.map((layer) => (
-            <img
-              key={layer.tag}
-              ref={BLINK_TAGS.has(layer.tag) ? setBlinkRef(layer.tag) : undefined}
-              data-tag={layer.tag}
-              src={layerBase + layer.file}
-              className={`jp-layer ${layer.cssClass || ''}`}
-              draggable={false}
-              style={{
-                left: layer.left,
-                top: layer.top,
-                width: layer.width,
-                height: layer.height,
-              }}
-            />
-          ))
-        )}
+        ))}
       </div>
 
       {/* Name + status badge */}
