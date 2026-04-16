@@ -23,7 +23,7 @@ from PIL import Image
 PROJECT_DIR = Path(__file__).parent.parent
 LAYERS_BASE = PROJECT_DIR / "public" / "layers"
 
-CHARACTERS = ["isaya", "algram"]  # jenny uses single-image mode
+CHARACTERS = ["isaya", "algram", "jenny"]
 
 
 def feather_mask(h: int, w: int, y_top: int, y_bottom: int, feather: int = 30) -> np.ndarray:
