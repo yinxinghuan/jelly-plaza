@@ -1,14 +1,50 @@
 import type { CharacterConfig } from './types';
 
 /**
- * Animation CSS class mapping based on layer tag.
- * Tags from See-through API may contain spaces/hyphens.
+ * Body zone CSS class for each layer tag.
+ *
+ * Breathing animation: each zone has a different amplitude.
+ * Chest rises most → head follows → hair trails → arms follow body → lower body stays.
+ *
+ * Some layers get an extra animation class (hair sway, headwear bob).
  */
-function layerClass(tag: string): string | undefined {
-  if (tag === 'back hair') return 'jp-layer--back-hair';
-  if (tag === 'front hair') return 'jp-layer--front-hair';
-  if (tag === 'headwear') return 'jp-layer--headwear';
-  return undefined;
+const ZONE_MAP: Record<string, string> = {
+  // Torso — most movement (chest breathing)
+  'topwear':    'jp-zone--torso',
+  'neck':       'jp-zone--torso',
+  'neckwear':   'jp-zone--torso',
+  // Head — follows chest, slightly less
+  'face':       'jp-zone--head',
+  'nose':       'jp-zone--head',
+  'mouth':      'jp-zone--head',
+  'ears-r':     'jp-zone--head',
+  'ears-l':     'jp-zone--head',
+  'eyebrow-r':  'jp-zone--head',
+  'eyebrow-l':  'jp-zone--head',
+  'eyelash-r':  'jp-zone--head',
+  'eyelash-l':  'jp-zone--head',
+  'eyewhite-r': 'jp-zone--head',
+  'eyewhite-l': 'jp-zone--head',
+  'irides-r':   'jp-zone--head',
+  'irides-l':   'jp-zone--head',
+  'eyewear':    'jp-zone--head',
+  'headwear':   'jp-zone--head',
+  // Hair — secondary motion, slight delay + own sway
+  'front hair': 'jp-zone--hair',
+  'back hair':  'jp-zone--hair',
+  // Arms — follow torso rhythm, own subtle sway
+  'handwear-r': 'jp-zone--arms',
+  'handwear-l': 'jp-zone--arms',
+  // Lower body — planted, no breathing
+  'bottomwear': 'jp-zone--lower',
+  'legwear':    'jp-zone--lower',
+  'footwear':   'jp-zone--lower',
+  // Objects — follow torso
+  'objects':    'jp-zone--torso',
+};
+
+function layerClass(tag: string): string {
+  return ZONE_MAP[tag] || '';
 }
 
 /**
