@@ -72,8 +72,10 @@
   overflow: visible;
 }
 
+/* Inner arm img: transform-origin set per-character from detected pivot */
 .jp-arm__img {
   display: block;
+  animation: jp-arm-swing 3s ease-in-out infinite;
 }
 
 /* Lower body — stays completely still */
@@ -124,11 +126,19 @@
   100%     { transform: translateY(0) translateX(0); }
 }
 
-/* Arms: identical to torso — no rotate, no detachment */
+/* Arms wrapper: match torso Y exactly (shoulder stays aligned) */
 @keyframes jp-breathe-arms {
   0%, 100% { transform: translateY(0) translateX(0); }
   45%      { transform: translateY(-22px) translateX(1.5px); }
   55%      { transform: translateY(-20px) translateX(0.5px); }
+}
+
+/* Arms inner: gentle swing from auto-detected shoulder pivot */
+@keyframes jp-arm-swing {
+  0%, 100% { transform: rotate(0deg); }
+  30%      { transform: rotate(2.5deg); }
+  50%      { transform: rotate(0.3deg); }
+  70%      { transform: rotate(-1.8deg); }
 }
 
 
@@ -141,7 +151,8 @@
 .jp-char--poking .jp-zone--torso,
 .jp-char--poking .jp-zone--head,
 .jp-char--poking .jp-zone--hair,
-.jp-char--poking .jp-zone--arms {
+.jp-char--poking .jp-zone--arms,
+.jp-char--poking .jp-arm__img {
   animation: none !important;
 }
 
