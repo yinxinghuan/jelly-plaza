@@ -219,7 +219,59 @@ def check_quality(layers_dir: Path, original_img: Image.Image) -> QualityReport:
                 if face_visible < 5000:
                     report.fail(f"Face layer too small: {face_visible}px")
 
+    # ── Check 8: Eye color fidelity ──
+    # Compare iris/eyewhite colors against the original image.
+    # API sometimes corrupts eye colors (e.g. green → gray-blue).
+    # This is the visual focal point so we check strictly.
+    _check_eye_colors(layers_dir, layers, original_img, W, H, report)
+
     return report
+
+
+def _check_eye_colors(
+    layers_dir: Path,
+    layers: list,
+    original_img: Image.Image,
+    W: int, H: int,
+    report: QualityReport,
+) -> None:
+    """Check that iris layer colors match the original image."""
+    # Build a canvas-space version of the original
+    orig = original_img.convert("RGBA")
+    ow, oh = orig.size
+    pad_size = max(ow, oh, 1152)
+    padded = Image.new("RGBA", (pad_size, pad_size), (0, 0, 0, 0))
+    padded.paste(orig, ((pad_size - ow) // 2, (pad_size - oh) // 2))
+    orig_canvas = np.array(padded.resize((W, H), Image.LANCZOS))
+
+    IRIS_TAGS = ["irides-r", "irides-l"]
+    for l in layers:
+        if l["tag"] not in IRIS_TAGS:
+            continue
+        x1, y1, x2, y2 = l["xyxy"]
+        safe = l["tag"].replace(" ", "_").replace("/", "_")
+        img_path = layers_dir / f"{safe}.png"
+        if not img_path.exists():
+            continue
+
+        layer_arr = np.array(Image.open(img_path).convert("RGBA"))
+        mask = layer_arr[:, :, 3] > 30
+        if mask.sum() < 20:
+            continue
+
+        # Layer RGB vs original RGB at same position
+        layer_rgb = layer_arr[mask, :3].mean(axis=0)
+        orig_region = orig_canvas[y1:y2, x1:x2]
+        orig_rgb = orig_region[mask, :3].mean(axis=0)
+
+        # Color distance (Euclidean in RGB)
+        dist = float(np.sqrt(((layer_rgb - orig_rgb) ** 2).sum()))
+        if dist > 80:
+            report.warn(
+                f"Eye color drift: {l['tag']} dist={dist:.0f} "
+                f"(layer=({layer_rgb[0]:.0f},{layer_rgb[1]:.0f},{layer_rgb[2]:.0f}) "
+                f"vs orig=({orig_rgb[0]:.0f},{orig_rgb[1]:.0f},{orig_rgb[2]:.0f}))"
+            )
 
 
 # ── API functions ────────────────────────────────────────────────
@@ -323,6 +375,40 @@ def fix_neck_alpha(layers_dir: Path):
     Image.fromarray(arr).save(neck_path)
 
 
+def fix_eye_colors(layers_dir: Path, original_img: Image.Image, W: int = 1280, H: int = 1280):
+    """Replace eye layer RGB with original image colors (API often corrupts them)."""
+    orig = original_img.convert("RGBA")
+    ow, oh = orig.size
+    pad_size = max(ow, oh, 1152)
+    padded = Image.new("RGBA", (pad_size, pad_size), (0, 0, 0, 0))
+    padded.paste(orig, ((pad_size - ow) // 2, (pad_size - oh) // 2))
+    orig_canvas = np.array(padded.resize((W, H), Image.LANCZOS))
+
+    meta_path = layers_dir / "metadata.json"
+    if not meta_path.exists():
+        return
+    with open(meta_path) as f:
+        meta = json.load(f)
+
+    EYE_TAGS = {"irides-r", "irides-l", "eyewhite-r", "eyewhite-l",
+                "eyelash-r", "eyelash-l"}
+    for l in meta.get("layers", []):
+        if l["tag"] not in EYE_TAGS:
+            continue
+        x1, y1, x2, y2 = l["xyxy"]
+        safe = l["tag"].replace(" ", "_").replace("/", "_")
+        path = layers_dir / f"{safe}.png"
+        if not path.exists():
+            continue
+        arr = np.array(Image.open(path).convert("RGBA"))
+        mask = arr[:, :, 3] > 20
+        if mask.sum() < 10:
+            continue
+        orig_region = orig_canvas[y1:y2, x1:x2]
+        arr[mask, :3] = orig_region[mask, :3]
+        Image.fromarray(arr).save(path)
+
+
 # ── Main flow ────────────────────────────────────────────────────
 
 def process_character(name: str, force: bool = False) -> bool:
@@ -376,6 +462,7 @@ def process_character(name: str, force: bool = False) -> bool:
         # Download to tmp
         download_layers(task_id, result, tmp_dir)
         fix_neck_alpha(tmp_dir)
+        fix_eye_colors(tmp_dir, original)
 
         # Quality check
         report = check_quality(tmp_dir, original)
