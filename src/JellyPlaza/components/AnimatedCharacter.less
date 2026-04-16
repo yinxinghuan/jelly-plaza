@@ -65,7 +65,25 @@
   animation: jp-breathe-arms 3s ease-in-out infinite;
 }
 
-/* Arms: pure translate, no rotate (rotate detaches from body at any pivot) */
+/* ── Arms: nested structure ──
+   .jp-arm-wrap (outer): positioned, jp-zone--arms breathing = translateY (body follow)
+   .jp-arm__img (inner): rotate from shoulder pivot (swing) */
+.jp-arm-wrap {
+  overflow: visible;
+}
+
+.jp-arm__img {
+  display: block;
+  animation: jp-arm-swing 3s ease-in-out infinite;
+}
+
+/* Shoulder pivot: right arm at top-right, left arm at top-left */
+.jp-arm-wrap[data-tag="handwear-r"] .jp-arm__img {
+  transform-origin: 100% 0%;
+}
+.jp-arm-wrap[data-tag="handwear-l"] .jp-arm__img {
+  transform-origin: 0% 0%;
+}
 
 /* Lower body — stays completely still */
 .jp-zone--lower {
@@ -115,12 +133,19 @@
   100%     { transform: translateY(0) translateX(0); }
 }
 
-/* Arms: match torso Y + horizontal sway for pendulum feel */
+/* Arms wrapper: match torso Y exactly (keeps shoulder aligned) */
 @keyframes jp-breathe-arms {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  30%      { transform: translateY(-20px) translateX(5px); }
-  50%      { transform: translateY(-22px) translateX(1px); }
-  70%      { transform: translateY(-16px) translateX(-4px); }
+  0%, 100% { transform: translateY(0); }
+  45%      { transform: translateY(-22px); }
+  55%      { transform: translateY(-20px); }
+}
+
+/* Arms inner: pendulum swing from shoulder */
+@keyframes jp-arm-swing {
+  0%, 100% { transform: rotate(0deg); }
+  30%      { transform: rotate(3deg); }
+  50%      { transform: rotate(0.5deg); }
+  70%      { transform: rotate(-2deg); }
 }
 
 
@@ -133,7 +158,8 @@
 .jp-char--poking .jp-zone--torso,
 .jp-char--poking .jp-zone--head,
 .jp-char--poking .jp-zone--hair,
-.jp-char--poking .jp-zone--arms {
+.jp-char--poking .jp-zone--arms,
+.jp-char--poking .jp-arm__img {
   animation: none !important;
 }
 
