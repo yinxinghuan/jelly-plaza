@@ -79,6 +79,14 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
     const getLayer = (tag: string) =>
       stage.querySelector<HTMLElement>(`.jp-layer[data-tag="${tag}"]`);
 
+    // Pause breathing — CSS animations override inline transforms!
+    const animatedLayers = stage.querySelectorAll<HTMLElement>(
+      '.jp-zone--torso, .jp-zone--head, .jp-zone--hair, .jp-zone--arms'
+    );
+    animatedLayers.forEach(el => {
+      el.style.animationPlayState = 'paused';
+    });
+
     // ── Phase 1: Surprise (0-100ms) ──
     // Quick blink (surprise reflex)
     refs.forEach((el, id) => {
@@ -169,23 +177,24 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
         }
       });
 
-      // All layers ease back (CSS breathing will resume)
-      stage.querySelectorAll<HTMLElement>('.jp-zone--torso, .jp-zone--head, .jp-zone--hair, .jp-zone--arms').forEach(el => {
+      // Ease back toward neutral
+      animatedLayers.forEach(el => {
         el.style.transition = 'transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        el.style.transform = '';
+        el.style.transform = 'translateY(0)';
       });
     }, 700);
 
-    // ── Cleanup: remove inline styles so CSS animations resume ──
+    // ── Cleanup: remove inline styles and resume breathing ──
     later(() => {
       refs.forEach((el) => {
         el.style.transition = '';
         el.style.transform = '';
         el.style.opacity = '';
       });
-      stage.querySelectorAll<HTMLElement>('.jp-zone--torso, .jp-zone--head, .jp-zone--hair, .jp-zone--arms').forEach(el => {
+      animatedLayers.forEach(el => {
         el.style.transition = '';
         el.style.transform = '';
+        el.style.animationPlayState = '';
       });
     }, 1200);
   }, [later]);
