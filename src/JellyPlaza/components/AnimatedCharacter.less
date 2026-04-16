@@ -42,12 +42,12 @@
 
 /* Torso — most movement (chest breathing source) */
 .jp-zone--torso {
-  animation: jp-breathe-torso 2.4s ease-in-out infinite;
+  animation: jp-breathe-torso 3s ease-in-out infinite;
 }
 
 /* Head — follows torso, slightly less amplitude */
 .jp-zone--head {
-  animation: jp-breathe-head 2.4s ease-in-out infinite;
+  animation: jp-breathe-head 3s ease-in-out infinite;
 }
 
 /* Eyelash needs transform-origin for blink (JS-driven scaleY) */
@@ -57,12 +57,12 @@
 
 /* Hair — trails behind head with sway */
 .jp-zone--hair {
-  animation: jp-breathe-hair 2.4s ease-in-out infinite;
+  animation: jp-breathe-hair 3s ease-in-out infinite;
 }
 
 /* Arms — follow torso with gentle pendulum sway */
 .jp-zone--arms {
-  animation: jp-breathe-arms 2.4s ease-in-out infinite;
+  animation: jp-breathe-arms 3s ease-in-out infinite;
 }
 
 /* Use transform-origin at shoulder (top of arm crop) for subtle swing */
@@ -80,17 +80,17 @@
 
 /* ── Per-character breathing phase offset ── */
 /* Characters don't breathe in perfect unison */
-.jp-char:nth-child(1) .jp-zone--hair { animation-delay: -0.15s; }
+.jp-char:nth-child(1) .jp-zone--hair { animation-delay: -0.2s; }
 
-.jp-char:nth-child(2) .jp-zone--torso { animation-delay: -0.8s; }
-.jp-char:nth-child(2) .jp-zone--head  { animation-delay: -0.8s; }
-.jp-char:nth-child(2) .jp-zone--hair  { animation-delay: -0.95s; }
-.jp-char:nth-child(2) .jp-zone--arms  { animation-delay: -0.7s; }
+.jp-char:nth-child(2) .jp-zone--torso { animation-delay: -1.0s; }
+.jp-char:nth-child(2) .jp-zone--head  { animation-delay: -1.0s; }
+.jp-char:nth-child(2) .jp-zone--hair  { animation-delay: -1.2s; }
+.jp-char:nth-child(2) .jp-zone--arms  { animation-delay: -0.9s; }
 
-.jp-char:nth-child(3) .jp-zone--torso { animation-delay: -1.6s; }
-.jp-char:nth-child(3) .jp-zone--head  { animation-delay: -1.6s; }
-.jp-char:nth-child(3) .jp-zone--hair  { animation-delay: -1.75s; }
-.jp-char:nth-child(3) .jp-zone--arms  { animation-delay: -1.5s; }
+.jp-char:nth-child(3) .jp-zone--torso { animation-delay: -2.0s; }
+.jp-char:nth-child(3) .jp-zone--head  { animation-delay: -2.0s; }
+.jp-char:nth-child(3) .jp-zone--hair  { animation-delay: -2.2s; }
+.jp-char:nth-child(3) .jp-zone--arms  { animation-delay: -1.9s; }
 
 /* ─────────────────────────────────────────────────────
    BREATHING KEYFRAMES
@@ -99,34 +99,34 @@
 /* ── Japanese RPG-style idle breathing ──
    Canvas px ÷ 4 ≈ screen px at scale 0.25.   */
 
-/* Torso: 20px rise + weight shift */
+/* Torso: 28px rise + weight shift sway */
 @keyframes jp-breathe-torso {
   0%, 100% { transform: translateY(0) translateX(0); }
-  45%      { transform: translateY(-20px) translateX(1.5px); }
-  55%      { transform: translateY(-18px) translateX(0.5px); }
+  45%      { transform: translateY(-28px) translateX(2px); }
+  55%      { transform: translateY(-26px) translateX(1px); }
 }
 
-/* Head: 17px rise */
+/* Head: 24px rise */
 @keyframes jp-breathe-head {
   0%, 100% { transform: translateY(0) translateX(0); }
-  50%      { transform: translateY(-17px) translateX(1px); }
+  50%      { transform: translateY(-24px) translateX(1px); }
 }
 
-/* Hair: 19px rise + flowing horizontal sway */
+/* Hair: 26px rise + flowing horizontal sway */
 @keyframes jp-breathe-hair {
   0%       { transform: translateY(0) translateX(0); }
-  25%      { transform: translateY(-10px) translateX(4px); }
-  50%      { transform: translateY(-19px) translateX(0); }
-  75%      { transform: translateY(-10px) translateX(-3px); }
+  25%      { transform: translateY(-14px) translateX(5px); }
+  50%      { transform: translateY(-26px) translateX(0); }
+  75%      { transform: translateY(-14px) translateX(-4px); }
   100%     { transform: translateY(0) translateX(0); }
 }
 
-/* Arms: 14px rise + pendulum swing */
+/* Arms: 20px rise + visible pendulum swing */
 @keyframes jp-breathe-arms {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  30%      { transform: translateY(-14px) rotate(1.5deg); }
-  50%      { transform: translateY(-12px) rotate(0deg); }
-  70%      { transform: translateY(-10px) rotate(-1deg); }
+  30%      { transform: translateY(-20px) rotate(2deg); }
+  50%      { transform: translateY(-18px) rotate(0deg); }
+  70%      { transform: translateY(-14px) rotate(-1.5deg); }
 }
 
 
