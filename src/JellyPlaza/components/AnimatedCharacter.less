@@ -74,15 +74,6 @@
 
 .jp-arm__img {
   display: block;
-  animation: jp-arm-swing 3s ease-in-out infinite;
-}
-
-/* Shoulder pivot: right arm at top-right, left arm at top-left */
-.jp-arm-wrap[data-tag="handwear-r"] .jp-arm__img {
-  transform-origin: 100% 0%;
-}
-.jp-arm-wrap[data-tag="handwear-l"] .jp-arm__img {
-  transform-origin: 0% 0%;
 }
 
 /* Lower body — stays completely still */
@@ -133,19 +124,11 @@
   100%     { transform: translateY(0) translateX(0); }
 }
 
-/* Arms wrapper: match torso Y exactly (keeps shoulder aligned) */
+/* Arms: identical to torso — no rotate, no detachment */
 @keyframes jp-breathe-arms {
-  0%, 100% { transform: translateY(0); }
-  45%      { transform: translateY(-22px); }
-  55%      { transform: translateY(-20px); }
-}
-
-/* Arms inner: pendulum swing from shoulder */
-@keyframes jp-arm-swing {
-  0%, 100% { transform: rotate(0deg); }
-  30%      { transform: rotate(3deg); }
-  50%      { transform: rotate(0.5deg); }
-  70%      { transform: rotate(-2deg); }
+  0%, 100% { transform: translateY(0) translateX(0); }
+  45%      { transform: translateY(-22px) translateX(1.5px); }
+  55%      { transform: translateY(-20px) translateX(0.5px); }
 }
 
 
@@ -158,8 +141,7 @@
 .jp-char--poking .jp-zone--torso,
 .jp-char--poking .jp-zone--head,
 .jp-char--poking .jp-zone--hair,
-.jp-char--poking .jp-zone--arms,
-.jp-char--poking .jp-arm__img {
+.jp-char--poking .jp-zone--arms {
   animation: none !important;
 }
 
