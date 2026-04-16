@@ -128,15 +128,19 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
       }
       if (armL) {
         armL.style.transition = 'transform 350ms ease-out';
-        armL.style.transform = 'rotate(-5deg)';
+        armL.style.transform = 'rotate(-12deg)';
       }
     }, 80);
 
-    // ── Phase 3: Right hand wave x3 (350-850ms), left stays ──
+    // ── Phase 3: Right hand wave, left sways back gently ──
     later(() => {
       if (armR) {
         armR.style.transition = 'transform 120ms ease-in-out';
         armR.style.transform = 'rotate(-16deg)';
+      }
+      if (armL) {
+        armL.style.transition = 'transform 250ms ease-in-out';
+        armL.style.transform = 'rotate(-18deg)';
       }
     }, 350);
     later(() => {
@@ -149,6 +153,10 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
       if (armR) {
         armR.style.transition = 'transform 120ms ease-in-out';
         armR.style.transform = 'rotate(-12deg)';
+      }
+      if (armL) {
+        armL.style.transition = 'transform 250ms ease-in-out';
+        armL.style.transform = 'rotate(-10deg)';
       }
     }, 590);
     later(() => {
