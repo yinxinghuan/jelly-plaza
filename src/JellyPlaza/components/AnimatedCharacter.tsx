@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import type { CharacterConfig } from '../types';
 import './AnimatedCharacter.less';
 
@@ -8,7 +8,6 @@ interface Props {
   isActive: boolean;
 }
 
-/** Tags that participate in the blink animation */
 const BLINK_TAGS = new Set([
   'eyelash-r', 'eyelash-l',
   'eyewhite-r', 'eyewhite-l',
@@ -18,10 +17,11 @@ const BLINK_TAGS = new Set([
 export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
   const blinkRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const blinkTimer = useRef<number>(0);
-  const [showBubble, setShowBubble] = useState(false);
-  const bubbleTimeout = useRef<number>(0);
+  const charRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
   const pokeTimers = useRef<number[]>([]);
+  const bubbleTimer = useRef<number>(0);
 
   const setBlinkRef = useCallback((id: string) => (el: HTMLImageElement | null) => {
     if (el) blinkRefs.current.set(id, el);
@@ -59,36 +59,37 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
     return () => clearTimeout(blinkTimer.current);
   }, [blink]);
 
-  // ── Helper: schedule a callback and track it for cleanup ──
   const later = useCallback((fn: () => void, ms: number) => {
     const id = window.setTimeout(fn, ms);
     pokeTimers.current.push(id);
     return id;
   }, []);
 
-  // ── Poke reaction ──
+  // ── Poke reaction (100% DOM, zero React state) ──
   const triggerPokeReaction = useCallback(() => {
     const stage = stageRef.current;
-    if (!stage) return;
+    const char = charRef.current;
+    if (!stage || !char) return;
 
-    // Clear any ongoing poke timers
     pokeTimers.current.forEach(clearTimeout);
     pokeTimers.current = [];
 
     const refs = blinkRefs.current;
-    const getLayer = (tag: string) =>
-      stage.querySelector<HTMLElement>(`.jp-layer[data-tag="${tag}"]`);
-
-    // Pause breathing — CSS animations override inline transforms!
-    const animatedLayers = stage.querySelectorAll<HTMLElement>(
+    const zones = stage.querySelectorAll<HTMLElement>(
       '.jp-zone--torso, .jp-zone--head, .jp-zone--hair, .jp-zone--arms'
     );
-    animatedLayers.forEach(el => {
-      el.style.animationPlayState = 'paused';
-    });
 
-    // ── Phase 1: Surprise (0-100ms) ──
-    // Quick blink (surprise reflex)
+    // Kill breathing (CSS class → animation: none !important)
+    char.classList.add('jp-char--poking');
+
+    // Show bubble (DOM only, no setState)
+    bubbleRef.current?.classList.add('jp-char__bubble--show');
+    clearTimeout(bubbleTimer.current);
+    bubbleTimer.current = window.setTimeout(() => {
+      bubbleRef.current?.classList.remove('jp-char__bubble--show');
+    }, 3000);
+
+    // ── Phase 1: Surprise dip (0-120ms) ──
     refs.forEach((el, id) => {
       if (id.startsWith('eyelash')) {
         el.style.transition = 'transform 50ms ease-in';
@@ -98,75 +99,67 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
         el.style.opacity = '0';
       }
     });
-
-    // Upper body dips down (startled squat)
-    stage.querySelectorAll<HTMLElement>('.jp-zone--torso, .jp-zone--head, .jp-zone--hair, .jp-zone--arms').forEach(el => {
+    zones.forEach(el => {
       el.style.transition = 'transform 120ms cubic-bezier(0.25, 0, 0.6, 1)';
       const tag = el.dataset.tag || '';
-      if (tag === 'topwear' || tag === 'neck' || tag === 'neckwear' || tag === 'objects') {
-        el.style.transform = 'translateY(12px)';
+      if (['topwear', 'neck', 'neckwear', 'objects'].includes(tag)) {
+        el.style.transform = 'translateY(30px)';
       } else if (tag.includes('hair')) {
-        el.style.transform = 'translateY(8px) translateX(2px)';
+        el.style.transform = 'translateY(20px) translateX(4px)';
       } else if (tag.startsWith('handwear')) {
-        el.style.transform = 'translateY(10px) rotate(-2deg)';
+        el.style.transform = 'translateY(25px) rotate(-3deg)';
       } else {
-        el.style.transform = 'translateY(10px)';
+        el.style.transform = 'translateY(25px)';
       }
     });
 
-    // ── Phase 2: Eyes wide open + bounce up (100-300ms) ──
+    // ── Phase 2: Bounce up (120-400ms) ──
     later(() => {
       refs.forEach((el, id) => {
         if (id.startsWith('eyelash')) {
           el.style.transition = 'transform 80ms ease-out';
-          el.style.transform = 'scaleY(1.1)';
+          el.style.transform = 'scaleY(1.15)';
         } else if (id.startsWith('eyewhite') || id.startsWith('irides')) {
-          el.style.transition = 'transform 120ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 80ms';
+          el.style.transition = 'transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 80ms';
           el.style.opacity = '1';
-          el.style.transform = 'scale(1.3)';  // wide surprised eyes
+          el.style.transform = 'scale(1.4)';
         }
       });
-
-      // Bounce up past neutral (overshoot)
-      stage.querySelectorAll<HTMLElement>('.jp-zone--torso, .jp-zone--head, .jp-zone--hair, .jp-zone--arms').forEach(el => {
-        el.style.transition = 'transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+      zones.forEach(el => {
+        el.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
         const tag = el.dataset.tag || '';
-        if (tag === 'topwear' || tag === 'neck' || tag === 'neckwear' || tag === 'objects') {
-          el.style.transform = 'translateY(-18px) translateX(2px)';
+        if (['topwear', 'neck', 'neckwear', 'objects'].includes(tag)) {
+          el.style.transform = 'translateY(-45px) translateX(3px)';
         } else if (tag.includes('hair')) {
-          el.style.transform = 'translateY(-22px) translateX(-3px)';
+          el.style.transform = 'translateY(-55px) translateX(-5px)';
         } else if (tag === 'handwear-r') {
-          // Right hand waves up
-          el.style.transform = 'translateY(-24px) rotate(8deg)';
+          el.style.transform = 'translateY(-60px) rotate(12deg)';
         } else if (tag === 'handwear-l') {
-          el.style.transform = 'translateY(-16px) rotate(-3deg)';
+          el.style.transform = 'translateY(-40px) rotate(-5deg)';
         } else {
-          // Head layers
-          el.style.transform = 'translateY(-16px) translateX(3px)';
+          el.style.transform = 'translateY(-40px) translateX(5px)';
         }
       });
     }, 120);
 
-    // ── Phase 3: Hand wave (300-600ms) ──
+    // ── Phase 3: Hand wave (400-700ms) ──
     later(() => {
-      const handR = getLayer('handwear-r');
+      const handR = stage.querySelector<HTMLElement>('[data-tag="handwear-r"]');
       if (handR) {
-        handR.style.transition = 'transform 180ms ease-in-out';
-        handR.style.transform = 'translateY(-20px) rotate(-5deg)';
+        handR.style.transition = 'transform 150ms ease-in-out';
+        handR.style.transform = 'translateY(-50px) rotate(-8deg)';
       }
-    }, 350);
-
+    }, 400);
     later(() => {
-      const handR = getLayer('handwear-r');
+      const handR = stage.querySelector<HTMLElement>('[data-tag="handwear-r"]');
       if (handR) {
-        handR.style.transition = 'transform 180ms ease-in-out';
-        handR.style.transform = 'translateY(-22px) rotate(6deg)';
+        handR.style.transition = 'transform 150ms ease-in-out';
+        handR.style.transform = 'translateY(-55px) rotate(10deg)';
       }
-    }, 530);
+    }, 550);
 
-    // ── Phase 4: Settle back to neutral (600-1000ms) ──
+    // ── Phase 4: Settle (700-1200ms) ──
     later(() => {
-      // Eyes back to normal size
       refs.forEach((el, id) => {
         if (id.startsWith('eyelash')) {
           el.style.transition = 'transform 300ms ease-in-out';
@@ -176,35 +169,30 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
           el.style.transform = 'scale(1)';
         }
       });
-
-      // Ease back toward neutral
-      animatedLayers.forEach(el => {
+      zones.forEach(el => {
         el.style.transition = 'transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         el.style.transform = 'translateY(0)';
       });
     }, 700);
 
-    // ── Cleanup: remove inline styles and resume breathing ──
+    // ── Cleanup: resume breathing ──
     later(() => {
-      refs.forEach((el) => {
+      refs.forEach(el => {
         el.style.transition = '';
         el.style.transform = '';
         el.style.opacity = '';
       });
-      animatedLayers.forEach(el => {
+      zones.forEach(el => {
         el.style.transition = '';
         el.style.transform = '';
-        el.style.animationPlayState = '';
       });
-    }, 1200);
+      char.classList.remove('jp-char--poking');
+    }, 1300);
   }, [later]);
 
   const handlePoke = useCallback(() => {
     onPoke(config.id);
     triggerPokeReaction();
-    clearTimeout(bubbleTimeout.current);
-    setShowBubble(true);
-    bubbleTimeout.current = window.setTimeout(() => setShowBubble(false), 3000);
   }, [config.id, onPoke, triggerPokeReaction]);
 
   const layerBase = `${import.meta.env.BASE_URL}layers/${config.id}/`;
@@ -212,6 +200,7 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
   return (
     <div
       className={`jp-char ${isActive ? 'jp-char--active' : ''}`}
+      ref={charRef}
       style={{
         left: `${config.x}%`,
         top: `${config.y}%`,
@@ -219,15 +208,14 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
       } as React.CSSProperties}
       onPointerDown={handlePoke}
     >
-      {/* Chat bubble */}
+      {/* Chat bubble — toggled via DOM classList, not React state */}
       <div className="jp-char__bubble-wrap">
-        <div className={`jp-char__bubble ${showBubble ? 'jp-char__bubble--show' : ''}`}>
+        <div className="jp-char__bubble" ref={bubbleRef}>
           <span>{config.greeting}</span>
           <div className="jp-char__bubble-tail" />
         </div>
       </div>
 
-      {/* Layer stage */}
       <div
         className="jp-char__stage"
         ref={stageRef}
@@ -251,7 +239,6 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
         ))}
       </div>
 
-      {/* Name + status badge */}
       <div className="jp-char__info">
         <span className="jp-char__name">{config.name}</span>
         <div className="jp-char__status">

@@ -131,15 +131,17 @@
 
 
 /* ─────────────────────────────────────────────────────
-   POKE REACTION — fully JS-driven via inline styles.
-   See AnimatedCharacter.tsx triggerPokeReaction().
-
-   4-phase sequence:
-     1. Surprise dip (squat down 12px, blink)
-     2. Bounce up with overshoot (-18px), eyes wide
-     3. Hand wave (right hand rotate ±6deg)
-     4. Settle back to breathing idle
+   POKE REACTION
+   .jp-char--poking kills all zone breathing animations
+   so JS inline transforms can take full control.
    ───────────────────────────────────────────────────── */
+
+.jp-char--poking .jp-zone--torso,
+.jp-char--poking .jp-zone--head,
+.jp-char--poking .jp-zone--hair,
+.jp-char--poking .jp-zone--arms {
+  animation: none !important;
+}
 
 /* ── Chat Bubble ── */
 .jp-char__bubble-wrap {
