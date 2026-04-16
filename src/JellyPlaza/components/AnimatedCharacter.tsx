@@ -133,40 +133,44 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
     }, 80);
 
     // ── Phase 3: Right hand wave, left sways back gently ──
+    // Wave 1: big + slow (enthusiastic start)
     later(() => {
       if (armR) {
-        armR.style.transition = 'transform 120ms ease-in-out';
-        armR.style.transform = 'rotate(-16deg)';
+        armR.style.transition = 'transform 280ms cubic-bezier(0.22, 1, 0.36, 1)';
+        armR.style.transform = 'rotate(-25deg)';
       }
       if (armL) {
-        armL.style.transition = 'transform 250ms ease-in-out';
-        armL.style.transform = 'rotate(-18deg)';
+        armL.style.transition = 'transform 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        armL.style.transform = 'rotate(-20deg)';
       }
     }, 350);
+    // Wave 2: swing back
     later(() => {
       if (armR) {
-        armR.style.transition = 'transform 120ms ease-in-out';
-        armR.style.transform = 'rotate(18deg)';
+        armR.style.transition = 'transform 260ms cubic-bezier(0.22, 1, 0.36, 1)';
+        armR.style.transform = 'rotate(20deg)';
       }
-    }, 470);
+    }, 630);
+    // Wave 3: smaller + faster (natural deceleration)
     later(() => {
       if (armR) {
-        armR.style.transition = 'transform 120ms ease-in-out';
-        armR.style.transform = 'rotate(-12deg)';
+        armR.style.transition = 'transform 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        armR.style.transform = 'rotate(-14deg)';
       }
       if (armL) {
-        armL.style.transition = 'transform 250ms ease-in-out';
-        armL.style.transform = 'rotate(-10deg)';
+        armL.style.transition = 'transform 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        armL.style.transform = 'rotate(-12deg)';
       }
-    }, 590);
+    }, 890);
+    // Wave 4: smallest (winding down)
     later(() => {
       if (armR) {
-        armR.style.transition = 'transform 120ms ease-in-out';
-        armR.style.transform = 'rotate(14deg)';
+        armR.style.transition = 'transform 200ms ease-out';
+        armR.style.transform = 'rotate(8deg)';
       }
-    }, 710);
+    }, 1110);
 
-    // ── Phase 4: Settle (850ms) ──
+    // ── Phase 4: Settle (1300ms) ──
     later(() => {
       refs.forEach((el, id) => {
         if (id.startsWith('eyewhite') || id.startsWith('irides')) {
@@ -186,7 +190,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         armL.style.transition = 'transform 500ms ease-in-out';
         armL.style.transform = 'rotate(0deg)';
       }
-    }, 850);
+    }, 1300);
 
     // ── Cleanup: resume breathing ──
     later(() => {
@@ -206,7 +210,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
       char.classList.remove('jp-char--poking');
       // Resume idle blink
       blinkTimer.current = window.setTimeout(blink, 800 + Math.random() * 1500);
-    }, 1500);
+    }, 1900);
   }, [later]);
 
   const handlePoke = useCallback(() => {
