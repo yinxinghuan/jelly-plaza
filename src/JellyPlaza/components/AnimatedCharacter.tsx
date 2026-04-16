@@ -107,7 +107,7 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
       } else if (tag.includes('hair')) {
         el.style.transform = 'translateY(20px) translateX(4px)';
       } else if (tag.startsWith('handwear')) {
-        el.style.transform = 'translateY(25px) rotate(-3deg)';
+        el.style.transform = 'translateY(25px) rotate(-4deg)';
       } else {
         el.style.transform = 'translateY(25px)';
       }
