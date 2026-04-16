@@ -5,7 +5,6 @@ import './AnimatedCharacter.less';
 interface Props {
   config: CharacterConfig;
   onPoke: (id: string) => void;
-  isActive: boolean;
 }
 
 const BLINK_TAGS = new Set([
@@ -14,7 +13,7 @@ const BLINK_TAGS = new Set([
   'irides-r', 'irides-l',
 ]);
 
-export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
+export function AnimatedCharacter({ config, onPoke }: Props) {
   const blinkRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const blinkTimer = useRef<number>(0);
   const charRef = useRef<HTMLDivElement>(null);
@@ -104,7 +103,7 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
     // All zones dip down the SAME amount — no detachment possible
     zones.forEach(el => {
       el.style.transition = 'transform 120ms cubic-bezier(0.25, 0, 0.6, 1)';
-      el.style.transform = 'translateY(8px)';
+      el.style.transform = 'translateY(4px)';
     });
 
     // ── Phase 2: Bounce up (120-400ms) ──
@@ -167,7 +166,7 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
 
   return (
     <div
-      className={`jp-char ${isActive ? 'jp-char--active' : ''}`}
+      className="jp-char"
       ref={charRef}
       style={{
         left: `${config.x}%`,
