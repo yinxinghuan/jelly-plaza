@@ -78,9 +78,30 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
       '.jp-zone--torso, .jp-zone--head, .jp-zone--hair, .jp-zone--arms'
     );
 
-    // Kill breathing + pause idle blink (blink scaleY would overwrite zone translateY)
+    // Kill breathing + pause idle blink
     char.classList.add('jp-char--poking');
     clearTimeout(blinkTimer.current);
+
+    // Find held objects (coffee cup, guitar etc.) and their holding arm's pivot
+    const heldObjects: { el: HTMLElement; pivot: string; holdingArm: HTMLElement | null }[] = [];
+    for (const l of config.layers) {
+      if (l.heldBy) {
+        const el = stage.querySelector<HTMLElement>(`.jp-layer[data-tag="${l.tag}"]`);
+        const arm = config.layers.find(a => a.tag === l.heldBy);
+        const pivot = arm?.pivot ? `${arm.pivot.x}% ${arm.pivot.y}%` : '50% 0%';
+        const armImgEl = stage.querySelector<HTMLElement>(`.jp-arm-wrap[data-tag="${l.heldBy}"] .jp-arm__img`);
+        if (el) heldObjects.push({ el, pivot, holdingArm: armImgEl });
+      }
+    }
+
+    // Sync held objects rotation (combines zone translateY + arm rotate)
+    const syncHeld = (transition: string, rotate: string, ty: string) => {
+      heldObjects.forEach(({ el, pivot }) => {
+        el.style.transformOrigin = pivot;
+        el.style.transition = transition;
+        el.style.transform = `${ty} ${rotate}`;
+      });
+    };
 
     // Show bubble (DOM only, no setState)
     bubbleRef.current?.classList.add('jp-char__bubble--show');
@@ -130,6 +151,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         armL.style.transition = 'transform 350ms ease-out';
         armL.style.transform = 'rotate(-12deg)';
       }
+      syncHeld('transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)', 'rotate(22deg)', 'translateY(-15px)');
     }, 80);
 
     // ── Phase 3: Right hand wave, left sways back gently ──
@@ -143,6 +165,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         armL.style.transition = 'transform 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         armL.style.transform = 'rotate(-20deg)';
       }
+      syncHeld('transform 450ms cubic-bezier(0.22, 1, 0.36, 1)', 'rotate(-25deg)', 'translateY(-15px)');
     }, 350);
     // Wave 2: swing back
     later(() => {
@@ -150,6 +173,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         armR.style.transition = 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)';
         armR.style.transform = 'rotate(20deg)';
       }
+      syncHeld('transform 420ms cubic-bezier(0.22, 1, 0.36, 1)', 'rotate(20deg)', 'translateY(-15px)');
     }, 800);
     // Wave 3: smaller (decelerating)
     later(() => {
@@ -161,6 +185,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         armL.style.transition = 'transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         armL.style.transform = 'rotate(-12deg)';
       }
+      syncHeld('transform 360ms cubic-bezier(0.25, 0.46, 0.45, 0.94)', 'rotate(-14deg)', 'translateY(-15px)');
     }, 1220);
     // Wave 4: smallest (winding down)
     later(() => {
@@ -168,6 +193,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         armR.style.transition = 'transform 320ms ease-out';
         armR.style.transform = 'rotate(8deg)';
       }
+      syncHeld('transform 320ms ease-out', 'rotate(8deg)', 'translateY(-15px)');
     }, 1580);
 
     // ── Phase 4: Settle (1900ms) ──
@@ -190,6 +216,7 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         armL.style.transition = 'transform 500ms ease-in-out';
         armL.style.transform = 'rotate(0deg)';
       }
+      syncHeld('transform 500ms ease-in-out', 'rotate(0deg)', 'translateY(0)');
     }, 1900);
 
     // ── Cleanup: resume breathing ──
@@ -206,6 +233,11 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
       stage.querySelectorAll<HTMLElement>('.jp-arm__img').forEach(img => {
         img.style.transition = '';
         img.style.transform = '';
+      });
+      heldObjects.forEach(({ el }) => {
+        el.style.transition = '';
+        el.style.transform = '';
+        el.style.transformOrigin = '';
       });
       char.classList.remove('jp-char--poking');
       // Resume idle blink
