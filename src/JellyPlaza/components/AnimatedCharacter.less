@@ -65,12 +65,12 @@
   animation: jp-breathe-arms 3s ease-in-out infinite;
 }
 
-/* Use transform-origin at shoulder (top of arm crop) for subtle swing */
+/* Arms: pivot at shoulder (where arm meets body) */
 .jp-zone--arms[data-tag="handwear-r"] {
-  transform-origin: top center;
+  transform-origin: 100% 0%;  /* shoulder = top-right of crop */
 }
 .jp-zone--arms[data-tag="handwear-l"] {
-  transform-origin: top center;
+  transform-origin: 0% 0%;    /* shoulder = top-left of crop */
 }
 
 /* Lower body — stays completely still */
@@ -121,12 +121,12 @@
   100%     { transform: translateY(0) translateX(0); }
 }
 
-/* Arms: 16px rise + wider pendulum swing */
+/* Arms: rise + pendulum swing from shoulder */
 @keyframes jp-breathe-arms {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  30%      { transform: translateY(-16px) rotate(3.5deg); }
+  30%      { transform: translateY(-16px) rotate(3deg); }
   50%      { transform: translateY(-14px) rotate(0.5deg); }
-  70%      { transform: translateY(-11px) rotate(-2.5deg); }
+  70%      { transform: translateY(-11px) rotate(-2deg); }
 }
 
 
