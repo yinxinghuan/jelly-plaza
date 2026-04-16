@@ -7,7 +7,6 @@
   touch-action: none;
   transition: filter 0.3s ease;
   transform: translate(-50%, -50%) scale(var(--char-scale, 0.35));
-  animation: jp-float 5s ease-in-out infinite;
 
   &:hover {
     filter: brightness(1.15) drop-shadow(0 0 20px rgba(140, 120, 255, 0.3));
@@ -18,22 +17,24 @@
   }
 
   &--poke {
-    animation: jp-poke 0.6s ease forwards, jp-float 5s ease-in-out infinite;
-  }
-
-  &:nth-child(2) {
-    animation-delay: -1.7s;
-    animation-duration: 5.3s;
-  }
-  &:nth-child(3) {
-    animation-delay: -3.2s;
-    animation-duration: 4.7s;
+    animation: jp-poke 0.6s ease forwards;
   }
 }
 
 /* ── Layered rendering ── */
 .jp-char__stage {
   position: relative;
+  /* Breathing: subtle vertical stretch from feet, legs stay still */
+  transform-origin: center bottom;
+  animation: jp-breathe 4s ease-in-out infinite;
+}
+
+/* Stagger breathing start so characters don't breathe in unison */
+.jp-char:nth-child(2) .jp-char__stage {
+  animation-delay: -1.3s;
+}
+.jp-char:nth-child(3) .jp-char__stage {
+  animation-delay: -2.6s;
 }
 
 .jp-layer {
@@ -42,33 +43,27 @@
   pointer-events: none;
 }
 
+/* Hair sway — pure translate, no rotation (avoids pivot issues on full-frame layers) */
 .jp-layer--back-hair {
-  transform-origin: top center;
-  animation: jp-hair-back 4.5s ease-in-out infinite;
+  animation: jp-hair-back 4s ease-in-out infinite;
 }
 
 .jp-layer--front-hair {
-  transform-origin: top center;
-  animation: jp-hair-front 3.8s ease-in-out infinite;
+  animation: jp-hair-front 4s ease-in-out infinite;
+  animation-delay: -1s; /* offset from back hair for natural feel */
 }
 
+/* Eyelash blink (JS-driven, needs transform-origin) */
 .jp-layer--eyelash {
   transform-origin: bottom center;
 }
 
+/* Headwear subtle bob — pure translateY, synced with breathing */
 .jp-layer--headwear {
-  transform-origin: bottom center;
-  animation: jp-hw-bob 4.5s ease-in-out infinite;
+  animation: jp-hw-bob 4s ease-in-out infinite;
 }
-
-.jp-layer--handwear {
-  transform-origin: top center;
-  animation: jp-arms-sway 5s ease-in-out infinite;
-}
-
 
 /* ── Chat Bubble ── */
-/* Wrapper counter-scales the bubble so it stays readable */
 .jp-char__bubble-wrap {
   position: absolute;
   top: 0;
@@ -109,7 +104,6 @@
 }
 
 /* ── Name + Status ── */
-/* Counter-scale to keep text at consistent readable size */
 .jp-char__info {
   display: flex;
   flex-direction: column;
@@ -151,9 +145,11 @@
 }
 
 /* ── Keyframes ── */
-@keyframes jp-float {
-  0%, 100% { transform: translate(-50%, -50%) scale(var(--char-scale, 0.35)); }
-  50%      { transform: translate(-50%, calc(-50% - 8px)) scale(var(--char-scale, 0.35)); }
+
+/* Breathing: subtle vertical stretch from bottom, feet stay planted */
+@keyframes jp-breathe {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.008); }
 }
 
 @keyframes jp-poke {
@@ -165,25 +161,21 @@
   100% { transform: translate(-50%, -50%) scale(var(--char-scale, 0.35)) rotate(0deg); }
 }
 
+/* Hair sway — translateX only, no rotation (full-frame layers have no good pivot) */
 @keyframes jp-hair-back {
-  0%, 100% { transform: rotate(0deg) translateX(0px); }
-  40%      { transform: rotate(1.2deg) translateX(2px); }
-  70%      { transform: rotate(-0.6deg) translateX(-1px); }
+  0%, 100% { transform: translateX(0); }
+  40%      { transform: translateX(2px); }
+  75%      { transform: translateX(-1.5px); }
 }
 
 @keyframes jp-hair-front {
-  0%, 100% { transform: rotate(0deg) translateX(0px); }
-  35%      { transform: rotate(-1deg) translateX(-2px); }
-  65%      { transform: rotate(0.5deg) translateX(1px); }
+  0%, 100% { transform: translateX(0); }
+  35%      { transform: translateX(-1.5px); }
+  70%      { transform: translateX(1px); }
 }
 
+/* Headwear bob — translateY synced with breathing rhythm */
 @keyframes jp-hw-bob {
-  0%, 100% { transform: rotate(0deg); }
-  40%      { transform: rotate(0.6deg); }
-  70%      { transform: rotate(-0.3deg); }
-}
-
-@keyframes jp-arms-sway {
-  0%, 100% { transform: rotate(0deg); }
-  50%      { transform: rotate(0.3deg); }
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1.5px); }
 }
