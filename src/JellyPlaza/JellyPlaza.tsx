@@ -1,13 +1,23 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { AnimatedCharacter } from './components/AnimatedCharacter';
 import { CHARACTERS } from './characters';
 import './JellyPlaza.less';
 
 export function JellyPlaza() {
-  const [activeChar, setActiveChar] = useState<string | null>(null);
+  const lastActive = useRef<string | null>(null);
+  const plazaRef = useRef<HTMLDivElement>(null);
 
   const handlePoke = useCallback((id: string) => {
-    setActiveChar(id);
+    // z-index management via DOM (no re-render)
+    if (lastActive.current) {
+      plazaRef.current
+        ?.querySelector(`.jp-char--active`)
+        ?.classList.remove('jp-char--active');
+    }
+    // The AnimatedCharacter adds jp-char--active itself is not needed,
+    // it's handled by charRef in the component. Actually let's just
+    // skip this — the poking class already brings it to front.
+    lastActive.current = id;
   }, []);
 
   return (
@@ -39,13 +49,12 @@ export function JellyPlaza() {
       </div>
 
       {/* Plaza area with characters */}
-      <div className="jp__plaza">
+      <div className="jp__plaza" ref={plazaRef}>
         {CHARACTERS.map((char) => (
           <AnimatedCharacter
             key={char.id}
             config={char}
             onPoke={handlePoke}
-            isActive={activeChar === char.id}
           />
         ))}
       </div>
