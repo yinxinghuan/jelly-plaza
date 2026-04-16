@@ -96,32 +96,32 @@
    BREATHING KEYFRAMES
    ───────────────────────────────────────────────────── */
 
-/* Torso: 4px rise + slight horizontal sway (weight shift) */
+/* Torso: 10px rise + weight shift (breathing source, most visible) */
 @keyframes jp-breathe-torso {
   0%, 100% { transform: translateY(0) translateX(0); }
-  50%      { transform: translateY(-4px) translateX(0.5px); }
+  50%      { transform: translateY(-10px) translateX(1px); }
 }
 
-/* Head: 3px rise, follows torso */
+/* Head: 8px rise, follows torso */
 @keyframes jp-breathe-head {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-3px); }
+  50%      { transform: translateY(-8px); }
 }
 
-/* Hair: 3.5px rise + gentle horizontal sway (secondary motion) */
+/* Hair: 9px rise + horizontal sway (secondary motion, trails head) */
 @keyframes jp-breathe-hair {
   0%       { transform: translateY(0) translateX(0); }
-  30%      { transform: translateY(-2px) translateX(1.5px); }
-  50%      { transform: translateY(-3.5px) translateX(0); }
-  70%      { transform: translateY(-2px) translateX(-1px); }
+  30%      { transform: translateY(-5px) translateX(3px); }
+  50%      { transform: translateY(-9px) translateX(0); }
+  70%      { transform: translateY(-5px) translateX(-2px); }
   100%     { transform: translateY(0) translateX(0); }
 }
 
-/* Arms: 2.5px rise + tiny pendulum swing */
+/* Arms: 7px rise + pendulum swing from shoulder */
 @keyframes jp-breathe-arms {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  35%      { transform: translateY(-2.5px) rotate(0.6deg); }
-  65%      { transform: translateY(-2px) rotate(-0.3deg); }
+  35%      { transform: translateY(-7px) rotate(1.2deg); }
+  65%      { transform: translateY(-5px) rotate(-0.6deg); }
 }
 
 /* ─────────────────────────────────────────────────────
