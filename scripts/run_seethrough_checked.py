@@ -26,7 +26,7 @@ from PIL import Image
 # ── Config ───────────────────────────────────────────────────────
 API_BASE = "https://u545921-y536-57d94c97.westd.seetacloud.com:8443/api/v1"
 POLL_INTERVAL = 10
-MAX_ATTEMPTS = 5
+MAX_ATTEMPTS = 10
 
 PROJECT_DIR = Path(__file__).parent.parent
 INPUT_DIR = PROJECT_DIR / "public" / "characters"
