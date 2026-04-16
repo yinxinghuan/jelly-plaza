@@ -83,14 +83,21 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
     clearTimeout(blinkTimer.current);
 
     // Find held objects (coffee cup, guitar etc.) and their holding arm's pivot
-    const heldObjects: { el: HTMLElement; pivot: string; holdingArm: HTMLElement | null }[] = [];
+    const heldObjects: { el: HTMLElement; pivot: string }[] = [];
     for (const l of config.layers) {
       if (l.heldBy) {
         const el = stage.querySelector<HTMLElement>(`.jp-layer[data-tag="${l.tag}"]`);
         const arm = config.layers.find(a => a.tag === l.heldBy);
-        const pivot = arm?.pivot ? `${arm.pivot.x}% ${arm.pivot.y}%` : '50% 0%';
-        const armImgEl = stage.querySelector<HTMLElement>(`.jp-arm-wrap[data-tag="${l.heldBy}"] .jp-arm__img`);
-        if (el) heldObjects.push({ el, pivot, holdingArm: armImgEl });
+        if (!el || !arm?.pivot) continue;
+        // Calculate shoulder position in canvas space
+        const shoulderX = arm.left + arm.width * arm.pivot.x / 100;
+        const shoulderY = arm.top + arm.height * arm.pivot.y / 100;
+        // Convert to object's local coordinate space
+        const localX = shoulderX - l.left;
+        const localY = shoulderY - l.top;
+        const pctX = (localX / l.width * 100).toFixed(1);
+        const pctY = (localY / l.height * 100).toFixed(1);
+        heldObjects.push({ el, pivot: `${pctX}% ${pctY}%` });
       }
     }
 
