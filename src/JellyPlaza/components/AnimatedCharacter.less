@@ -147,47 +147,15 @@
 }
 
 /* ─────────────────────────────────────────────────────
-   POKE REACTION (triggered by JS, one-shot)
+   POKE REACTION — fully JS-driven via inline styles.
+   See AnimatedCharacter.tsx triggerPokeReaction().
+
+   4-phase sequence:
+     1. Surprise dip (squat down 12px, blink)
+     2. Bounce up with overshoot (-18px), eyes wide
+     3. Hand wave (right hand rotate ±6deg)
+     4. Settle back to breathing idle
    ───────────────────────────────────────────────────── */
-
-/* Subtle stage squash-stretch on poke */
-.jp-char__stage--poked {
-  animation: jp-stage-bounce 0.7s ease forwards;
-  transform-origin: center bottom;
-}
-
-@keyframes jp-stage-bounce {
-  0%   { transform: scaleY(1); }
-  12%  { transform: scaleY(0.975); }
-  30%  { transform: scaleY(1.01); }
-  50%  { transform: scaleY(0.995); }
-  100% { transform: scaleY(1); }
-}
-
-/* Head layers tilt on poke */
-.jp-layer--poke-head {
-  animation: jp-head-tilt 0.7s ease forwards !important;
-}
-
-@keyframes jp-head-tilt {
-  0%   { transform: translateX(0) translateY(0); }
-  15%  { transform: translateX(-4px) translateY(-6px); }
-  35%  { transform: translateX(2px) translateY(-2px); }
-  55%  { transform: translateX(-1px) translateY(-1px); }
-  100% { transform: translateX(0) translateY(0); }
-}
-
-/* Body layers: slight sway opposite to head */
-.jp-layer--poke-body {
-  animation: jp-body-sway 0.7s ease forwards !important;
-}
-
-@keyframes jp-body-sway {
-  0%   { transform: translateX(0); }
-  15%  { transform: translateX(1px); }
-  35%  { transform: translateX(-0.5px); }
-  100% { transform: translateX(0); }
-}
 
 /* ── Chat Bubble ── */
 .jp-char__bubble-wrap {
