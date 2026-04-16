@@ -101,7 +101,8 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
       }
     });
     // All zones dip down together
-    const armImgs = stage.querySelectorAll<HTMLElement>('.jp-arm__img');
+    const armR = stage.querySelector<HTMLElement>('.jp-arm-wrap[data-tag="handwear-r"] .jp-arm__img');
+    const armL = stage.querySelector<HTMLElement>('.jp-arm-wrap[data-tag="handwear-l"] .jp-arm__img');
     zones.forEach(el => {
       el.style.transition = 'transform 120ms cubic-bezier(0.25, 0, 0.6, 1)';
       el.style.transform = 'translateY(4px)';
@@ -120,26 +121,30 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         el.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
         el.style.transform = 'translateY(-45px)';
       });
-      // Arms swing outward from shoulder
-      armImgs.forEach(img => {
-        img.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-        img.style.transform = 'rotate(10deg)';
-      });
+      // Right arm swings out (wave), left arm gentle follow
+      if (armR) {
+        armR.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+        armR.style.transform = 'rotate(12deg)';
+      }
+      if (armL) {
+        armL.style.transition = 'transform 400ms ease-out';
+        armL.style.transform = 'rotate(-3deg)';
+      }
     }, 120);
 
-    // ── Phase 3: Arm wave (400-550-700ms) ──
+    // ── Phase 3: Right hand wave (400-550-700ms), left stays ──
     later(() => {
-      armImgs.forEach(img => {
-        img.style.transition = 'transform 150ms ease-in-out';
-        img.style.transform = 'rotate(-8deg)';
-      });
+      if (armR) {
+        armR.style.transition = 'transform 140ms ease-in-out';
+        armR.style.transform = 'rotate(-10deg)';
+      }
     }, 400);
     later(() => {
-      armImgs.forEach(img => {
-        img.style.transition = 'transform 150ms ease-in-out';
-        img.style.transform = 'rotate(10deg)';
-      });
-    }, 550);
+      if (armR) {
+        armR.style.transition = 'transform 140ms ease-in-out';
+        armR.style.transform = 'rotate(12deg)';
+      }
+    }, 540);
 
     // ── Phase 4: Settle (700ms) ──
     later(() => {
@@ -153,10 +158,14 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         el.style.transition = 'transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         el.style.transform = 'translateY(0)';
       });
-      armImgs.forEach(img => {
-        img.style.transition = 'transform 400ms ease-in-out';
-        img.style.transform = 'rotate(0deg)';
-      });
+      if (armR) {
+        armR.style.transition = 'transform 400ms ease-in-out';
+        armR.style.transform = 'rotate(0deg)';
+      }
+      if (armL) {
+        armL.style.transition = 'transform 500ms ease-in-out';
+        armL.style.transform = 'rotate(0deg)';
+      }
     }, 700);
 
     // ── Cleanup: resume breathing ──
