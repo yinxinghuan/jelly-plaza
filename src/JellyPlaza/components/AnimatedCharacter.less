@@ -72,10 +72,14 @@
   overflow: visible;
 }
 
-/* Inner arm img: transform-origin set per-character from detected pivot */
+/* Inner arm rotator: contains arm img + held objects, rotates from shoulder */
 .jp-arm__img {
-  display: block;
+  position: relative;
   animation: jp-arm-swing 3s ease-in-out infinite;
+}
+
+.jp-arm__img > img:first-child {
+  display: block;
 }
 
 /* Lower body — stays completely still */
