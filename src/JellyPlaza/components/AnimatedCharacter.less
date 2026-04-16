@@ -15,24 +15,12 @@
   &--active {
     z-index: 10;
   }
-
-  /* poke handled per-layer now, no whole-char shake */
 }
 
 /* ── Layered rendering ── */
 .jp-char__stage {
   position: relative;
-  /* Breathing: subtle vertical stretch from feet, legs stay still */
-  transform-origin: center bottom;
-  animation: jp-breathe 4s ease-in-out infinite;
-}
-
-/* Stagger breathing start so characters don't breathe in unison */
-.jp-char:nth-child(2) .jp-char__stage {
-  animation-delay: -1.3s;
-}
-.jp-char:nth-child(3) .jp-char__stage {
-  animation-delay: -2.6s;
+  /* No stage-level animation — breathing is per-zone now */
 }
 
 .jp-layer {
@@ -41,7 +29,105 @@
   pointer-events: none;
 }
 
-/* Single-image fallback: gentle float */
+/* ─────────────────────────────────────────────────────
+   ZONE-BASED BREATHING
+
+   Principle: chest rises on inhale → head follows →
+   hair trails with delay → arms hang from shoulders →
+   lower body stays planted.
+
+   All zones share the same 4s period but different
+   amplitudes and slight phase offsets.
+   ───────────────────────────────────────────────────── */
+
+/* Torso — most movement (chest breathing source) */
+.jp-zone--torso {
+  animation: jp-breathe-torso 4s ease-in-out infinite;
+}
+
+/* Head — follows torso, slightly less amplitude */
+.jp-zone--head {
+  animation: jp-breathe-head 4s ease-in-out infinite;
+}
+
+/* Eyelash needs transform-origin for blink (JS-driven scaleY) */
+.jp-zone--head[data-tag^="eyelash"] {
+  transform-origin: bottom center;
+}
+
+/* Hair — trails behind head with sway */
+.jp-zone--hair {
+  animation: jp-breathe-hair 4s ease-in-out infinite;
+}
+
+/* Arms — follow torso with gentle pendulum sway */
+.jp-zone--arms {
+  animation: jp-breathe-arms 4s ease-in-out infinite;
+}
+
+/* Use transform-origin at shoulder (top of arm crop) for subtle swing */
+.jp-zone--arms[data-tag="handwear-r"] {
+  transform-origin: top center;
+}
+.jp-zone--arms[data-tag="handwear-l"] {
+  transform-origin: top center;
+}
+
+/* Lower body — stays completely still */
+.jp-zone--lower {
+  /* no animation */
+}
+
+/* ── Per-character breathing phase offset ── */
+/* Characters don't breathe in perfect unison */
+.jp-char:nth-child(1) .jp-zone--hair { animation-delay: -0.3s; }
+
+.jp-char:nth-child(2) .jp-zone--torso { animation-delay: -1.3s; }
+.jp-char:nth-child(2) .jp-zone--head  { animation-delay: -1.3s; }
+.jp-char:nth-child(2) .jp-zone--hair  { animation-delay: -1.6s; }
+.jp-char:nth-child(2) .jp-zone--arms  { animation-delay: -1.2s; }
+
+.jp-char:nth-child(3) .jp-zone--torso { animation-delay: -2.6s; }
+.jp-char:nth-child(3) .jp-zone--head  { animation-delay: -2.6s; }
+.jp-char:nth-child(3) .jp-zone--hair  { animation-delay: -2.9s; }
+.jp-char:nth-child(3) .jp-zone--arms  { animation-delay: -2.5s; }
+
+/* ─────────────────────────────────────────────────────
+   BREATHING KEYFRAMES
+   ───────────────────────────────────────────────────── */
+
+/* Torso: 4px rise + slight horizontal sway (weight shift) */
+@keyframes jp-breathe-torso {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50%      { transform: translateY(-4px) translateX(0.5px); }
+}
+
+/* Head: 3px rise, follows torso */
+@keyframes jp-breathe-head {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+/* Hair: 3.5px rise + gentle horizontal sway (secondary motion) */
+@keyframes jp-breathe-hair {
+  0%       { transform: translateY(0) translateX(0); }
+  30%      { transform: translateY(-2px) translateX(1.5px); }
+  50%      { transform: translateY(-3.5px) translateX(0); }
+  70%      { transform: translateY(-2px) translateX(-1px); }
+  100%     { transform: translateY(0) translateX(0); }
+}
+
+/* Arms: 2.5px rise + tiny pendulum swing */
+@keyframes jp-breathe-arms {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  35%      { transform: translateY(-2.5px) rotate(0.6deg); }
+  65%      { transform: translateY(-2px) rotate(-0.3deg); }
+}
+
+/* ─────────────────────────────────────────────────────
+   SINGLE-IMAGE FALLBACK (for characters without layers)
+   ───────────────────────────────────────────────────── */
+
 .jp-layer--single {
   position: relative;
   animation: jp-single-float 4s ease-in-out infinite;
@@ -52,24 +138,47 @@
   50%      { transform: translateY(-4px); }
 }
 
-/* Hair sway — pure translate, no rotation (avoids pivot issues on full-frame layers) */
-.jp-layer--back-hair {
-  animation: jp-hair-back 4s ease-in-out infinite;
+/* ─────────────────────────────────────────────────────
+   POKE REACTION (triggered by JS, one-shot)
+   ───────────────────────────────────────────────────── */
+
+/* Subtle stage squash-stretch on poke */
+.jp-char__stage--poked {
+  animation: jp-stage-bounce 0.7s ease forwards;
+  transform-origin: center bottom;
 }
 
-.jp-layer--front-hair {
-  animation: jp-hair-front 4s ease-in-out infinite;
-  animation-delay: -1s; /* offset from back hair for natural feel */
+@keyframes jp-stage-bounce {
+  0%   { transform: scaleY(1); }
+  12%  { transform: scaleY(0.975); }
+  30%  { transform: scaleY(1.01); }
+  50%  { transform: scaleY(0.995); }
+  100% { transform: scaleY(1); }
 }
 
-/* Eyelash blink (JS-driven, needs transform-origin) */
-.jp-layer--eyelash {
-  transform-origin: bottom center;
+/* Head layers tilt on poke */
+.jp-layer--poke-head {
+  animation: jp-head-tilt 0.7s ease forwards !important;
 }
 
-/* Headwear subtle bob — pure translateY, synced with breathing */
-.jp-layer--headwear {
-  animation: jp-hw-bob 4s ease-in-out infinite;
+@keyframes jp-head-tilt {
+  0%   { transform: translateX(0) translateY(0); }
+  15%  { transform: translateX(-4px) translateY(-6px); }
+  35%  { transform: translateX(2px) translateY(-2px); }
+  55%  { transform: translateX(-1px) translateY(-1px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+/* Body layers: slight sway opposite to head */
+.jp-layer--poke-body {
+  animation: jp-body-sway 0.7s ease forwards !important;
+}
+
+@keyframes jp-body-sway {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(1px); }
+  35%  { transform: translateX(-0.5px); }
+  100% { transform: translateX(0); }
 }
 
 /* ── Chat Bubble ── */
@@ -151,69 +260,4 @@
   border-radius: 50%;
   background: #4ade80;
   box-shadow: 0 0 8px #4ade80;
-}
-
-/* ── Keyframes ── */
-
-/* Breathing: subtle vertical stretch from bottom, feet stay planted */
-@keyframes jp-breathe {
-  0%, 100% { transform: scaleY(1); }
-  50%      { transform: scaleY(1.008); }
-}
-
-/* Poke: subtle stage bounce (feet stay planted) */
-.jp-char__stage--poked {
-  animation: jp-stage-bounce 0.7s ease forwards;
-}
-
-@keyframes jp-stage-bounce {
-  0%   { transform: scaleY(1); }
-  12%  { transform: scaleY(0.97); }
-  30%  { transform: scaleY(1.012); }
-  50%  { transform: scaleY(0.995); }
-  100% { transform: scaleY(1); }
-}
-
-/* Head layers tilt on poke */
-.jp-layer--poke-head {
-  animation: jp-head-tilt 0.7s ease forwards;
-}
-
-@keyframes jp-head-tilt {
-  0%   { transform: translateX(0) translateY(0); }
-  15%  { transform: translateX(-4px) translateY(-6px); }
-  35%  { transform: translateX(2px) translateY(-2px); }
-  55%  { transform: translateX(-1px) translateY(-1px); }
-  100% { transform: translateX(0) translateY(0); }
-}
-
-/* Body layers: slight sway opposite to head */
-.jp-layer--poke-body {
-  animation: jp-body-sway 0.7s ease forwards;
-}
-
-@keyframes jp-body-sway {
-  0%   { transform: translateX(0); }
-  15%  { transform: translateX(1px); }
-  35%  { transform: translateX(-0.5px); }
-  100% { transform: translateX(0); }
-}
-
-/* Hair sway — translateX only, no rotation (full-frame layers have no good pivot) */
-@keyframes jp-hair-back {
-  0%, 100% { transform: translateX(0); }
-  40%      { transform: translateX(2px); }
-  75%      { transform: translateX(-1.5px); }
-}
-
-@keyframes jp-hair-front {
-  0%, 100% { transform: translateX(0); }
-  35%      { transform: translateX(-1.5px); }
-  70%      { transform: translateX(1px); }
-}
-
-/* Headwear bob — translateY synced with breathing rhythm */
-@keyframes jp-hw-bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-1.5px); }
 }
