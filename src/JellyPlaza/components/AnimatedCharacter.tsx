@@ -107,7 +107,7 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
       if (tag.includes('hair')) {
         el.style.transform = 'translateY(20px) translateX(4px)';
       } else if (tag.startsWith('handwear')) {
-        el.style.transform = 'translateY(30px) rotate(-4deg)';
+        el.style.transform = 'translateY(30px) translateX(-4px)';
       } else if (tag.startsWith('eyelash')) {
         // handled by refs above
       } else {
@@ -135,9 +135,9 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
         if (tag.includes('hair')) {
           el.style.transform = 'translateY(-55px) translateX(-5px)';
         } else if (tag === 'handwear-r') {
-          el.style.transform = 'translateY(-45px) rotate(12deg)';
+          el.style.transform = 'translateY(-45px) translateX(10px)';
         } else if (tag === 'handwear-l') {
-          el.style.transform = 'translateY(-45px) rotate(-5deg)';
+          el.style.transform = 'translateY(-45px) translateX(-6px)';
         } else if (tag.startsWith('eyelash')) {
           // handled by refs above
         } else {
@@ -151,14 +151,14 @@ export function AnimatedCharacter({ config, onPoke, isActive }: Props) {
       const handR = stage.querySelector<HTMLElement>('[data-tag="handwear-r"]');
       if (handR) {
         handR.style.transition = 'transform 150ms ease-in-out';
-        handR.style.transform = 'translateY(-45px) rotate(-8deg)';
+        handR.style.transform = 'translateY(-45px) translateX(-8px)';
       }
     }, 400);
     later(() => {
       const handR = stage.querySelector<HTMLElement>('[data-tag="handwear-r"]');
       if (handR) {
         handR.style.transition = 'transform 150ms ease-in-out';
-        handR.style.transform = 'translateY(-45px) rotate(10deg)';
+        handR.style.transform = 'translateY(-45px) translateX(12px)';
       }
     }, 550);
 
