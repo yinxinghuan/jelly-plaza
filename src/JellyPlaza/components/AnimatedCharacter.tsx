@@ -100,13 +100,14 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         el.style.opacity = '0';
       }
     });
-    // All zones dip down the SAME amount — no detachment possible
+    // All zones dip down together
+    const armImgs = stage.querySelectorAll<HTMLElement>('.jp-arm__img');
     zones.forEach(el => {
       el.style.transition = 'transform 120ms cubic-bezier(0.25, 0, 0.6, 1)';
       el.style.transform = 'translateY(4px)';
     });
 
-    // ── Phase 2: Bounce up (120-400ms) ──
+    // ── Phase 2: Bounce up + arms swing out (120-400ms) ──
     later(() => {
       refs.forEach((el, id) => {
         if (id.startsWith('eyewhite') || id.startsWith('irides')) {
@@ -115,14 +116,32 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
           el.style.transform = 'scale(1.4)';
         }
       });
-      // All zones bounce up the SAME amount
       zones.forEach(el => {
         el.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
         el.style.transform = 'translateY(-45px)';
       });
+      // Arms swing outward from shoulder
+      armImgs.forEach(img => {
+        img.style.transition = 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+        img.style.transform = 'rotate(10deg)';
+      });
     }, 120);
 
-    // ── Phase 3: Settle (400-900ms) ──
+    // ── Phase 3: Arm wave (400-550-700ms) ──
+    later(() => {
+      armImgs.forEach(img => {
+        img.style.transition = 'transform 150ms ease-in-out';
+        img.style.transform = 'rotate(-8deg)';
+      });
+    }, 400);
+    later(() => {
+      armImgs.forEach(img => {
+        img.style.transition = 'transform 150ms ease-in-out';
+        img.style.transform = 'rotate(10deg)';
+      });
+    }, 550);
+
+    // ── Phase 4: Settle (700ms) ──
     later(() => {
       refs.forEach((el, id) => {
         if (id.startsWith('eyewhite') || id.startsWith('irides')) {
@@ -134,7 +153,11 @@ export function AnimatedCharacter({ config, onPoke }: Props) {
         el.style.transition = 'transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         el.style.transform = 'translateY(0)';
       });
-    }, 500);
+      armImgs.forEach(img => {
+        img.style.transition = 'transform 400ms ease-in-out';
+        img.style.transform = 'rotate(0deg)';
+      });
+    }, 700);
 
     // ── Cleanup: resume breathing ──
     later(() => {
