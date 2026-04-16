@@ -14,7 +14,7 @@ from pathlib import Path
 import requests
 from PIL import Image
 
-API_BASE = "https://u545921-2wvn-c338e6ee.westb.seetacloud.com:8443/api/v1"
+API_BASE = "https://u545921-y536-57d94c97.westd.seetacloud.com:8443/api/v1"
 POLL_INTERVAL = 10  # seconds
 
 PROJECT_DIR = Path(__file__).parent.parent
@@ -23,12 +23,7 @@ OUTPUT_BASE = PROJECT_DIR / "public" / "layers"
 
 CHARACTERS = ["isaya", "algram", "jenny"]
 
-LAYER_TAGS = [
-    "headwear", "back_hair", "handwear", "footwear", "legwear",
-    "neck", "bottomwear", "topwear", "ears", "face",
-    "nose", "mouth", "eyebrow", "eyelash", "eyewhite",
-    "front_hair", "irides",
-]
+  # Layer tags are now returned dynamically by the API (21 layers with L/R split)
 
 
 def prepare_image(src: Path, out_dir: Path) -> Path:
@@ -89,32 +84,33 @@ def poll_task(task_id: str) -> dict:
         time.sleep(POLL_INTERVAL)
 
 
-def download_layers(task_id: str, layer_tags: list[str], out_dir: Path) -> dict:
-    """Download individual layer PNGs. Returns metadata with positions."""
+def download_layers(task_id: str, result: dict, out_dir: Path) -> None:
+    """Download individual layer PNGs + save metadata from task result."""
+    import urllib.parse
     base = f"{API_BASE}/tasks/{task_id}/files"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Metadata
-    resp = requests.get(f"{base}/metadata", timeout=15)
-    resp.raise_for_status()
-    metadata = resp.json()
+    # Save metadata from task result (API no longer serves /files/metadata)
     meta_path = out_dir / "metadata.json"
-    meta_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False))
+    meta_path.write_text(json.dumps(result, indent=2, ensure_ascii=False))
     print(f"  [dl] metadata → {meta_path}")
 
-    # Individual layers
-    for tag in layer_tags:
-        resp = requests.get(f"{base}/layer/{tag}.png", timeout=30)
+    # Individual layers (tags may contain spaces, need URL encoding)
+    layers_info = result.get("layers", [])
+    for layer in layers_info:
+        tag = layer["tag"]
+        encoded_tag = urllib.parse.quote(tag)
+        resp = requests.get(f"{base}/layer/{encoded_tag}.png", timeout=30)
         if resp.status_code == 404:
             print(f"  [dl] {tag}.png → 404, skipping")
             continue
         resp.raise_for_status()
-        layer_path = out_dir / f"{tag}.png"
+        # Sanitize filename: replace spaces with underscores
+        safe_name = tag.replace(" ", "_").replace("/", "_")
+        layer_path = out_dir / f"{safe_name}.png"
         layer_path.write_bytes(resp.content)
         size_kb = len(resp.content) // 1024
-        print(f"  [dl] {tag}.png ({size_kb} KB)")
-
-    return metadata
+        print(f"  [dl] {tag} → {safe_name}.png ({size_kb} KB)")
 
 
 def process_character(name: str) -> bool:
@@ -147,11 +143,13 @@ def process_character(name: str) -> bool:
         return False
 
     # Step 4: Download layers
-    layers_info = result.get("result", {}).get("layers", [])
+    result_data = result.get("result", {})
+    layers_info = result_data.get("layers", [])
     tags = [l["tag"] for l in layers_info]
     print(f"  [info] {len(tags)} layers: {tags}")
+    print(f"  [info] frame_size: {result_data.get('frame_size')}")
 
-    download_layers(task_id, tags, out_dir)
+    download_layers(task_id, result_data, out_dir)
 
     # Clean up padded input
     (out_dir / "input_padded.png").unlink(missing_ok=True)
